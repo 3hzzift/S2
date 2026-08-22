@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
+<title>PERSONAL ARCHIVE</title>
+<meta name="description" content="자작 캐릭터 페어 디데이 · 커미션 갤러리 · 로그 아카이브" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230B0B0C'/%3E%3Cpath d='M16 4 L18 14 L28 16 L18 18 L16 28 L14 18 L4 16 L14 14 Z' fill='%23fff'/%3E%3C/svg%3E" />
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7/babel.min.js" crossorigin></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   PERSONAL ARCHIVE — neo-swiss flat window system
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --paper:#E9E9E7; --pane:#FFFFFF; --ink:#0B0B0C; --line:#0B0B0C;
+  --g1:#6E6E73; --g2:#B7B7BA; --g3:#DEDEDC; --danger:#B3170A;
+  --accent:#1F4BFF;
+  --sans:"Helvetica Neue",Helvetica,Inter,"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --tap:44px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0; padding:0; background:var(--paper); color:var(--ink);}
+body{font-family:var(--sans); -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
+  min-height:100dvh; overflow-x:hidden;}
+button,input,select,textarea{font-family:inherit; border-radius:0;}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+img{max-width:100%;}
+
+.app{min-height:100dvh; padding-left:26px; position:relative;}
+.edge{position:fixed; left:0; top:0; bottom:0; width:26px; border-right:1px solid var(--line);
+  background:var(--ink); color:var(--paper); overflow:hidden; z-index:5;}
+.edge span{position:absolute; top:16px; left:50%; transform:translateX(-50%) rotate(90deg);
+  transform-origin:top left; white-space:nowrap; font-family:var(--mono); font-size:9px;
+  letter-spacing:.22em; text-transform:uppercase;}
+.shell{max-width:1160px; margin:0 auto; padding:22px 18px 0;}
+
+/* ── masthead ── */
+.mast{border-bottom:2px solid var(--line); padding-bottom:10px;}
+.mast-top{display:flex; align-items:center; gap:12px; margin-bottom:6px;}
+.coord{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--g1); white-space:nowrap;}
+.rule{flex:1; height:1px; background:var(--line);}
+.mast h1{font-size:clamp(34px,10vw,84px); line-height:.86; letter-spacing:-.045em; font-weight:700;
+  margin:0; text-transform:lowercase; word-break:break-word;}
+.mast h1 .dot{color:var(--accent);}
+.mast-sub{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-top:8px; flex-wrap:wrap;}
+.serif{font-family:Georgia,"Times New Roman",serif; font-style:italic; font-size:15px; color:var(--g1);}
+.who{color:var(--accent);}
+
+/* ── tabs ── */
+.tabs{display:flex; margin-top:16px; overflow-x:auto; scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{background:transparent; border:1px solid var(--line); border-bottom:none; padding:10px 16px 9px;
+  margin-right:-1px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  cursor:pointer; display:flex; align-items:baseline; gap:8px; color:var(--ink); white-space:nowrap;}
+.tab .n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em;}
+.tab:hover{background:var(--pane);}
+.tab.on{background:var(--ink); color:#fff;}
+.tab.on .n{color:var(--accent);}
+.main{border-top:1px solid var(--line);}
+.stack{display:flex; flex-direction:column; gap:18px; padding-top:18px;}
+.main > .pane{margin-top:18px;}
+
+/* ── window pane ── */
+.pane{background:var(--pane); border:1px solid var(--line);}
+.bar{display:flex; align-items:center; gap:10px; min-height:26px; padding:0 8px; border-bottom:1px solid var(--line);}
+.bar .idx{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:#fff; background:var(--ink); padding:2px 5px;}
+.bar .ttl{font-family:var(--mono); font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
+  font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.bar .meta{font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--g1);
+  margin-left:auto; white-space:nowrap;}
+.bar .tools{display:flex; align-items:center; gap:5px; margin-left:auto;}
+.bar .meta + .tools{margin-left:10px;}
+.sq{width:7px; height:7px; border:1px solid var(--ink); display:block;}
+.xmark{width:9px; height:9px; display:block;}
+.xmark line{stroke:var(--ink); stroke-width:1.4;}
+.pane-act{display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:10px; border-bottom:1px solid var(--g3);}
+.pane-body{padding:14px;}
+
+/* ── controls ── */
+.btn{border:1px solid var(--line); background:var(--pane); color:var(--ink); font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; padding:0 14px; height:38px; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+.btn:hover{background:var(--g3);}
+.btn.solid{background:var(--accent); border-color:var(--accent); color:#fff;}
+.btn.solid:hover{filter:brightness(.9);}
+.btn.danger{color:var(--danger); border-color:var(--danger); background:var(--pane);}
+.btn.danger:hover{background:var(--danger); color:#fff;}
+.btn[disabled]{opacity:.45; cursor:default;}
+.btn.filebtn{position:relative; overflow:hidden;}
+.btn.filebtn input{position:absolute; inset:0; opacity:0; cursor:pointer;}
+.sel,.search{border:1px solid var(--g2); background:var(--pane); font-family:var(--mono); font-size:10px;
+  letter-spacing:.08em; padding:0 8px; height:38px; color:var(--ink); text-transform:uppercase;}
+.search{min-width:170px; text-transform:none; flex:1;}
+
+/* ── grids ── */
+.grid{display:grid; gap:1px; background:var(--g3); border-top:1px solid var(--g3);}
+.grid-pairs{grid-template-columns:repeat(auto-fill,minmax(268px,1fr));}
+.grid-gal{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));}
+
+/* ── pair card ── */
+.card{background:var(--pane); padding:14px; display:flex; flex-direction:column;}
+.card-head{display:flex; justify-content:space-between; align-items:center; gap:8px; font-family:var(--mono);
+  font-size:9px; letter-spacing:.14em; color:var(--g1); text-transform:uppercase;}
+.card-tag{color:var(--accent); font-weight:700; display:flex; align-items:center; gap:4px;}
+.pair-name{font-size:19px; letter-spacing:-.02em; font-weight:700; margin:10px 0 0; line-height:1.2;}
+.cross{color:var(--accent); font-weight:400;}
+.pair-sub{margin:3px 0 0; font-family:Georgia,serif; font-style:italic; font-size:12.5px; color:var(--g1);}
+.count{display:flex; align-items:baseline; gap:4px; margin:14px 0 4px; border-top:1px solid var(--line); padding-top:10px;}
+.count .pre{font-family:var(--mono); font-size:13px; font-weight:700; color:var(--accent);}
+.count .num{font-size:clamp(46px,11vw,64px); font-weight:700; letter-spacing:-.05em; line-height:.82;}
+.count .unit{font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--g1); margin-left:2px;}
+.ms{margin-top:12px;}
+.ms-row{display:flex; justify-content:space-between; gap:8px; font-family:var(--mono); font-size:9px;
+  letter-spacing:.12em; text-transform:uppercase;}
+.ms-track{height:6px; border:1px solid var(--line); margin:5px 0;
+  background:repeating-linear-gradient(45deg,var(--g3) 0 3px,transparent 3px 6px);}
+.ms-fill{display:block; height:100%; background:var(--accent);}
+.ms-foot{color:var(--g1);}
+.card-memo{font-size:12.5px; line-height:1.6; color:var(--g1); margin:12px 0 0; white-space:pre-wrap;}
+.card-foot{display:flex; gap:14px; margin-top:auto; padding-top:14px;}
+.mini{border:none; background:none; padding:6px 0; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+  text-transform:uppercase; cursor:pointer; color:var(--g1); border-bottom:1px solid var(--g2);}
+.mini:hover{color:var(--ink); border-color:var(--ink);}
+.mini.del:hover{color:var(--danger); border-color:var(--danger);}
+
+/* ── gallery ── */
+.thumb{background:var(--pane); border:none; padding:10px; cursor:pointer; text-align:left; display:block; width:100%;}
+.thumb:hover{background:#fafafa;}
+.frame{display:block; border:1px solid var(--line); aspect-ratio:1/1; overflow:hidden; background:var(--g3);}
+.frame img{width:100%; height:100%; object-fit:cover; display:block;}
+.thumb-meta{display:grid; grid-template-columns:auto 1fr; gap:2px 8px; margin-top:8px; align-items:baseline;}
+.thumb-n{font-family:var(--mono); font-size:9px; color:#fff; background:var(--ink); padding:1px 4px; grid-row:span 2;}
+.thumb-t{font-size:12px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.thumb-a{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--accent);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.imgph{width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-family:var(--mono);
+  font-size:9px; letter-spacing:.2em; color:var(--g1);}
+
+/* ── logs ── */
+.logs{list-style:none; margin:0; padding:0;}
+.logs li + li{border-top:1px solid var(--g3);}
+.log{width:100%; background:var(--pane); border:none; cursor:pointer; text-align:left;
+  display:grid; grid-template-columns:34px 1fr auto; gap:12px; align-items:baseline; padding:14px;}
+.log:hover{background:#fafafa;}
+.log:hover .log-t{color:var(--accent);}
+.log-n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em;}
+.log-t{display:block; font-size:14.5px; font-weight:700; letter-spacing:-.015em;}
+.log-ex{display:block; font-size:12px; color:var(--g1); margin-top:3px; overflow:hidden;
+  text-overflow:ellipsis; white-space:nowrap;}
+.log-side{text-align:right; font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--g1); white-space:nowrap;}
+.log-pair{display:block; color:var(--accent); margin-top:3px;}
+
+/* ── empty ── */
+.empty{padding:44px 20px; text-align:center; background:var(--pane);}
+.empty p{max-width:380px; margin:12px auto 16px; font-size:13px; line-height:1.65; color:var(--g1);}
+.star{display:block; margin:0 auto;}
+
+/* ── modal ── */
+.scrim{position:fixed; inset:0; background:rgba(11,11,12,.62); display:flex; align-items:flex-start;
+  justify-content:center; padding:24px 16px; overflow:auto; z-index:60;}
+.modal{background:var(--pane); border:1px solid var(--line); width:100%; max-width:520px; margin:auto;}
+.modal.wide{max-width:780px;}
+.modal-body{padding:16px; max-height:78vh; overflow:auto; -webkit-overflow-scrolling:touch;}
+.close{border:none; background:transparent; cursor:pointer; padding:6px; display:flex; align-items:center;}
+
+/* ── forms ── */
+.form{display:flex; flex-direction:column; gap:12px;}
+.f2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+.field{display:flex; flex-direction:column; gap:5px;}
+.lab{font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; display:flex; gap:6px; align-items:baseline;}
+.lab em{font-style:normal; color:var(--g2); letter-spacing:.1em;}
+.in{border:1px solid var(--line); background:var(--pane); padding:10px; font-size:16px; color:var(--ink); width:100%;}
+.in.lg{font-size:18px; font-weight:700;}
+.in:focus{outline:2px solid var(--accent); outline-offset:-1px;}
+.ta{resize:vertical; line-height:1.65; font-size:15px;}
+.ta.lg{min-height:230px;}
+.check{display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 0;}
+.check input{width:18px; height:18px;}
+.foot{display:flex; gap:8px; justify-content:flex-end; padding-top:4px; flex-wrap:wrap;}
+.preview{border:1px solid var(--accent); padding:9px 12px; display:flex; justify-content:space-between;
+  align-items:baseline; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--g1);}
+.preview strong{font-family:var(--sans); font-size:20px; letter-spacing:-.03em; color:var(--accent);}
+.formprev{border:1px solid var(--g2); padding:6px; background:var(--g3);}
+.formprev img{display:block; max-height:220px; margin:0 auto;}
+.seg{display:flex;}
+.seg button{flex:1; border:1px solid var(--line); background:var(--pane); padding:10px 8px; font-size:10.5px;
+  font-weight:700; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; margin-right:-1px;}
+.seg button.on{background:var(--ink); color:#fff;}
+
+/* ── detail ── */
+.view{display:flex; flex-direction:column; gap:14px;}
+.view-img{border:1px solid var(--line); background:var(--g3); padding:8px; text-align:center;}
+.view-img img{max-height:56vh; display:block; margin:0 auto;}
+.metagrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px;
+  background:var(--g3); border:1px solid var(--g3); margin:0;}
+.metagrid > div{background:var(--pane); padding:9px 10px;}
+.metagrid .wide{grid-column:1/-1;}
+.metagrid dt{font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--g1);}
+.metagrid dd{margin:4px 0 0; font-size:13px;}
+.pre{white-space:pre-wrap; line-height:1.8; word-break:break-word;}
+.read-meta{display:flex; gap:16px; flex-wrap:wrap; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--g1); border-bottom:1px solid var(--line); padding-bottom:8px;}
+.read-body{font-size:15px; margin:14px 0; max-width:62ch;}
+
+/* ── settings ── */
+.sws{display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px;}
+.sw{border:1px solid var(--g2); background:var(--pane); padding:6px; cursor:pointer; display:flex; flex-direction:column; gap:5px;}
+.sw span{display:block; height:30px; border:1px solid var(--line);}
+.sw em{font-family:var(--mono); font-size:9px; letter-spacing:.12em; font-style:normal; color:var(--g1);}
+.sw.on{box-shadow:inset 0 0 0 2px var(--ink); border-color:var(--ink);}
+.sw.on em{color:var(--ink); font-weight:700;}
+.color{width:100%; height:40px; border:1px solid var(--line); background:var(--pane); padding:3px; cursor:pointer;}
+.note{font-size:12.5px; line-height:1.7; color:var(--g1); margin:12px 0 0;}
+.note.small{font-size:11px;}
+.mt{margin-top:12px;}
+code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 4px;}
+
+/* ── status ── */
+.status{display:flex; gap:14px; align-items:center; border:1px solid var(--line); border-bottom:none;
+  background:var(--ink); color:var(--paper); padding:9px 10px; margin-top:18px; font-family:var(--mono);
+  font-size:9px; letter-spacing:.16em; text-transform:uppercase; flex-wrap:wrap;
+  position:sticky; bottom:0; z-index:4;}
+.status .sp{flex:1;}
+.state{color:var(--g2);}
+.state.live{color:#fff; background:var(--accent); padding:2px 6px;}
+.state.err{color:#fff; background:var(--danger); padding:2px 6px;}
+
+/* ── gate (login) ── */
+.gate{min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:24px 16px;}
+.gate-inner{width:100%; max-width:420px;}
+.gate-mast{margin-bottom:18px;}
+.gate-mast h1{font-size:clamp(34px,12vw,58px); margin:0; line-height:.86; letter-spacing:-.045em;
+  font-weight:700; text-transform:lowercase;}
+.gate-mast p{margin:8px 0 0; font-family:var(--mono); font-size:9.5px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--g1);}
+.gate-tab{display:flex; margin-bottom:14px;}
+.msg{border:1px solid var(--line); padding:10px; font-size:12.5px; line-height:1.6; background:var(--g3);}
+.msg.bad{border-color:var(--danger); color:var(--danger); background:var(--pane);}
+.msg.ok{border-color:var(--accent); color:var(--accent); background:var(--pane);}
+.linkbtn{background:none; border:none; padding:6px 0; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g1); cursor:pointer; border-bottom:1px solid var(--g2);}
+.linkbtn:hover{color:var(--ink); border-color:var(--ink);}
+
+/* ── responsive ── */
+@media (max-width:760px){
+  .grid-gal{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+}
+@media (max-width:620px){
+  .app{padding-left:0;}
+  .edge{display:none;}
+  .shell{padding:14px 12px 0;}
+  .mast{padding-bottom:8px;}
+  .mast-top .coord:last-child{display:none;}
+  .tabs{position:sticky; top:0; z-index:6; background:var(--paper); margin:14px -12px 0; padding:0 12px;}
+  .tab{flex:1 0 auto; justify-content:center; min-height:var(--tap); padding:0 12px;}
+  .f2{grid-template-columns:1fr;}
+  .pane-act{gap:6px;}
+  .pane-act .btn{flex:1 0 100%;}
+  .pane-act .sel,.pane-act .search{flex:1 1 45%; min-width:0;}
+  .grid-pairs{grid-template-columns:1fr;}
+  .grid-gal{grid-template-columns:1fr 1fr;}
+  .log{grid-template-columns:24px 1fr; padding:12px;}
+  .log-side{grid-column:2; text-align:left; display:flex; gap:12px; margin-top:5px;}
+  .log-pair{margin-top:0;}
+  .scrim{padding:0; align-items:stretch;}
+  .modal{max-width:none; border:none; border-top:1px solid var(--line); min-height:100dvh; margin:0;}
+  .modal .bar{position:sticky; top:0; background:var(--pane); z-index:2; min-height:var(--tap);}
+  .modal-body{max-height:none; padding:14px 14px calc(24px + env(safe-area-inset-bottom));}
+  .foot{position:sticky; bottom:0; background:var(--pane); padding:10px 0 0; border-top:1px solid var(--g3); margin-top:8px;}
+  .foot .btn{flex:1; min-height:var(--tap);}
+  .btn,.sel,.search{min-height:var(--tap);}
+  .view-img img{max-height:44vh;}
+  .status{margin-top:14px; padding-bottom:calc(9px + env(safe-area-inset-bottom)); gap:10px;}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important;}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+/* ═══════════════════════════════════════════════════════════
+   CONFIG — 여기에 값을 넣어두면 사이트에서 바로 로그인됩니다.
+   (비워두면 첫 화면에서 직접 입력할 수 있고, 그 값은 이 브라우저에 기억됩니다)
+   ═══════════════════════════════════════════════════════════ */
+const CONFIG = {
+  SUPABASE_URL: "",
+  SUPABASE_ANON_KEY: "",
+  BUCKET: "gallery",
+};
+
+const LS_CFG = "archive.cfg";
+const LS_LOCAL = "archive.local";
+const LS_PASS = "archive.pass";
+
+function readCfg(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(LS_CFG) || "null");
+    if (saved && saved.url && saved.key) return saved;
+  }catch(e){}
+  if (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY)
+    return { url: CONFIG.SUPABASE_URL, key: CONFIG.SUPABASE_ANON_KEY };
+  return null;
+}
+function writeCfg(url, key){ localStorage.setItem(LS_CFG, JSON.stringify({ url, key })); }
+
+/* ── date utils ── */
+const pad = n => String(n).padStart(2,"0");
+const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const parseISO = s => { const [y,m,d]=(s||"").split("-").map(Number); return Date.UTC(y,(m||1)-1,d||1); };
+const DAY = 86400000;
+const diffDays = (a,b) => Math.round((parseISO(b)-parseISO(a))/DAY);
+const countFrom = s => diffDays(s, todayISO()) + 1;           // 시작일 = 1일째
+const addDaysISO = (iso,n) => { const t=new Date(parseISO(iso)+n*DAY);
+  return `${t.getUTCFullYear()}-${pad(t.getUTCMonth()+1)}-${pad(t.getUTCDate())}`; };
+const fmtDate = iso => iso ? iso.replace(/-/g,".") : "";
+const uid = () => Math.random().toString(36).slice(2,8) + Date.now().toString(36).slice(-4);
+
+function nextMilestone(startISO, current){
+  const c = [];
+  for (let i=1;i<=200;i++) c.push({count:i*100, label:`${i*100}일`});
+  const [Y,M,D] = startISO.split("-").map(Number);
+  for (let y=1;y<=50;y++){
+    const t = new Date(Date.UTC(Y+y, M-1, D));
+    const iso = `${t.getUTCFullYear()}-${pad(t.getUTCMonth()+1)}-${pad(t.getUTCDate())}`;
+    c.push({count: diffDays(startISO, iso)+1, label:`${y}주년`});
+  }
+  c.sort((a,b)=>a.count-b.count);
+  const next = c.find(x=>x.count>current);
+  const prev = [...c].reverse().find(x=>x.count<=current);
+  return { next, prevCount: prev ? prev.count : 1 };
+}
+
+/* ── image compression ── */
+function readFile(file){
+  return new Promise((res,rej)=>{ const r=new FileReader();
+    r.onload=()=>res(r.result); r.onerror=()=>rej(new Error("read")); r.readAsDataURL(file); });
+}
+async function compress(file, maxDim=1600){
+  const raw = await readFile(file);
+  const img = await new Promise((res,rej)=>{ const i=new Image();
+    i.onload=()=>res(i); i.onerror=()=>rej(new Error("decode")); i.src=raw; });
+  let w=img.width, h=img.height;
+  const s = Math.min(1, maxDim/Math.max(w,h));
+  w=Math.round(w*s); h=Math.round(h*s);
+  const c=document.createElement("canvas"); c.width=w; c.height=h;
+  const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0,w,h);
+  let q=0.86, dataUrl=c.toDataURL("image/jpeg",q);
+  while (dataUrl.length > 1_600_000 && q > 0.42){ q-=0.12; dataUrl=c.toDataURL("image/jpeg",q); }
+  const blob = await new Promise(r=>c.toBlob(r,"image/jpeg",q));
+  return { blob, dataUrl, w, h };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STORE — cloud(Supabase) / local(this browser)
+   ═══════════════════════════════════════════════════════════ */
+const EMPTY = { version:1, settings:{accent:"#1F4BFF", title:"PERSONAL ARCHIVE", owner:""},
+  pairs:[], gallery:[], logs:[] };
+
+function makeCloudStore(sb, user){
+  return {
+    mode:"cloud",
+    label: user.email,
+    async load(){
+      const { data, error } = await sb.from("archive_data").select("payload").eq("user_id", user.id).maybeSingle();
+      if (error) throw error;
+      return data && data.payload ? { ...EMPTY, ...data.payload } : { ...EMPTY };
+    },
+    async save(payload){
+      const { error } = await sb.from("archive_data")
+        .upsert({ user_id:user.id, payload, updated_at:new Date().toISOString() }, { onConflict:"user_id" });
+      if (error) throw error;
+    },
+    async putImage(id, blob){
+      const path = `${user.id}/${id}.jpg`;
+      const { error } = await sb.storage.from(CONFIG.BUCKET)
+        .upload(path, blob, { contentType:"image/jpeg", upsert:true });
+      if (error) throw error;
+      const { data } = sb.storage.from(CONFIG.BUCKET).getPublicUrl(path);
+      return { src: data.publicUrl, path };
+    },
+    async delImage(item){
+      if (item.path) await sb.storage.from(CONFIG.BUCKET).remove([item.path]);
+    },
+    resolve(item){ return item.src || ""; },
+    async signOut(){ await sb.auth.signOut(); }
+  };
+}
+
+function makeLocalStore(){
+  return {
+    mode:"local",
+    label:"이 브라우저",
+    async load(){
+      try{ const d=JSON.parse(localStorage.getItem(LS_LOCAL)||"null");
+        return d ? { ...EMPTY, ...d } : { ...EMPTY }; }catch(e){ return { ...EMPTY }; }
+    },
+    async save(payload){ localStorage.setItem(LS_LOCAL, JSON.stringify(payload)); },
+    async putImage(id, blob, dataUrl){
+      try{ localStorage.setItem("archive.img."+id, dataUrl); }
+      catch(e){ throw new Error("이 브라우저의 저장 공간이 가득 찼습니다."); }
+      return { src:"local:"+id, path:null };
+    },
+    async delImage(item){ if (item.src && item.src.startsWith("local:"))
+      localStorage.removeItem("archive.img."+item.src.slice(6)); },
+    resolve(item){
+      if (item.src && item.src.startsWith("local:")) return localStorage.getItem("archive.img."+item.src.slice(6)) || "";
+      return item.src || "";
+    },
+    async signOut(){ sessionStorage.removeItem(LS_PASS); }
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRIMITIVES
+   ═══════════════════════════════════════════════════════════ */
+const Star = ({size=26, color="var(--accent)"}) => (
+  <svg className="star" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M16 0 C17 11 21 15 32 16 C21 17 17 21 16 32 C15 21 11 17 0 16 C11 15 15 11 16 0 Z" fill={color}/>
+  </svg>
+);
+const XIcon = () => (
+  <svg className="xmark" viewBox="0 0 10 10" aria-hidden="true">
+    <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+  </svg>
+);
+
+function Pane({ idx, title, meta, actions, children, pad:padded=true }){
+  return (
+    <section className="pane">
+      <header className="bar">
+        <span className="idx">{idx}</span>
+        <span className="ttl">{title}</span>
+        {meta ? <span className="meta">{meta}</span> : null}
+        <span className="tools" aria-hidden="true"><i className="sq"/><i className="sq"/><XIcon/></span>
+      </header>
+      {actions ? <div className="pane-act">{actions}</div> : null}
+      <div className={padded ? "pane-body" : ""}>{children}</div>
+    </section>
+  );
+}
+const Btn = ({children, variant="line", ...rest}) =>
+  <button type="button" className={`btn ${variant==="line"?"":variant}`} {...rest}>{children}</button>;
+const Field = ({label, hint, children}) => (
+  <label className="field"><span className="lab">{label}{hint?<em>{hint}</em>:null}</span>{children}</label>
+);
+function Modal({ title, idx="—", onClose, children, wide }){
+  useEffect(()=>{
+    const h=e=>e.key==="Escape"&&onClose();
+    window.addEventListener("keydown",h);
+    document.body.style.overflow="hidden";
+    return ()=>{ window.removeEventListener("keydown",h); document.body.style.overflow=""; };
+  },[onClose]);
+  return (
+    <div className="scrim" onMouseDown={e=>e.target===e.currentTarget&&onClose()}>
+      <div className={`modal ${wide?"wide":""}`} role="dialog" aria-modal="true">
+        <header className="bar">
+          <span className="idx">{idx}</span><span className="ttl">{title}</span>
+          <span className="tools"><button className="close" onClick={onClose} aria-label="닫기"><XIcon/></button></span>
+        </header>
+        <div className="modal-body">{children}</div>
+      </div>
+    </div>
+  );
+}
+const Empty = ({line, action}) => (
+  <div className="empty"><Star/><p>{line}</p>{action}</div>
+);
+function Pic({ item, store, alt, className }){
+  const src = store.resolve(item);
+  if (!src) return <div className="imgph"><span>NO IMAGE</span></div>;
+  return <img src={src} alt={alt} className={className} loading="lazy" />;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GATE — 로그인
+   ═══════════════════════════════════════════════════════════ */
+function Gate({ onCloud, onLocal }){
+  const [cfg, setCfg] = useState(readCfg());
+  const [sb, setSb] = useState(null);
+  const [mode, setMode] = useState("in");           // in | up
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState(null);
+  const [setup, setSetup] = useState(!readCfg());
+  const [url, setUrl] = useState(cfg?cfg.url:"");
+  const [key, setKey] = useState(cfg?cfg.key:"");
+
+  useEffect(()=>{
+    if (!cfg) return;
+    const client = window.supabase.createClient(cfg.url, cfg.key);
+    setSb(client);
+    client.auth.getSession().then(({data})=>{ if (data.session) onCloud(client, data.session.user); });
+  },[cfg]);
+
+  const submit = async () => {
+    if (!sb) return;
+    if (!email.trim() || !pw) return setMsg({bad:true, text:"아이디(이메일)와 비밀번호를 모두 입력해 주세요."});
+    setBusy(true); setMsg(null);
+    try{
+      if (mode==="up"){
+        const { data, error } = await sb.auth.signUp({ email:email.trim(), password:pw });
+        if (error) throw error;
+        if (data.session) onCloud(sb, data.session.user);
+        else setMsg({ok:true, text:"확인 메일을 보냈습니다. 메일에서 인증한 뒤 로그인해 주세요."});
+      } else {
+        const { data, error } = await sb.auth.signInWithPassword({ email:email.trim(), password:pw });
+        if (error) throw error;
+        onCloud(sb, data.session.user);
+      }
+    }catch(e){
+      const m = (e && e.message) || "";
+      setMsg({bad:true, text:
+        /Invalid login/i.test(m) ? "아이디 또는 비밀번호가 맞지 않습니다." :
+        /already registered/i.test(m) ? "이미 가입된 아이디입니다. 로그인해 주세요." :
+        /Password should be/i.test(m) ? "비밀번호는 6자 이상이어야 합니다." : m || "요청을 처리하지 못했습니다."});
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="gate">
+      <div className="gate-inner">
+        <div className="gate-mast">
+          <h1>archive<span className="dot">·</span></h1>
+          <p>Character pairs / commissions / logs</p>
+        </div>
+
+        {setup ? (
+          <Pane idx="00" title="CONNECT / 저장소 연결">
+            <div className="form">
+              <p className="note" style={{marginTop:0}}>
+                기록을 계정에 저장하려면 Supabase 프로젝트 주소와 anon key가 필요합니다.
+                README의 준비 절차를 따라 값을 붙여넣어 주세요. 이 값은 이 브라우저에 기억되고,
+                <code>index.html</code> 상단 CONFIG에 넣어두면 어느 기기에서든 바로 로그인 화면이 뜹니다.
+              </p>
+              <Field label="Project URL"><input className="in" value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://xxxx.supabase.co"/></Field>
+              <Field label="Anon key"><input className="in" value={key} onChange={e=>setKey(e.target.value)} placeholder="eyJhbGciOi…"/></Field>
+              <div className="foot">
+                <Btn onClick={onLocal}>이 브라우저에만 저장</Btn>
+                <Btn variant="solid" onClick={()=>{
+                  if(!url.trim()||!key.trim()) return alert("두 값을 모두 입력해 주세요.");
+                  writeCfg(url.trim(), key.trim()); const c=readCfg(); setCfg(c); setSetup(false);
+                }}>연결하기</Btn>
+              </div>
+            </div>
+          </Pane>
+        ) : (
+          <Pane idx="00" title={mode==="up" ? "SIGN UP / 계정 만들기" : "SIGN IN / 로그인"}>
+            <div className="form">
+              <div className="seg gate-tab">
+                <button className={mode==="in"?"on":""} onClick={()=>{setMode("in");setMsg(null);}}>로그인</button>
+                <button className={mode==="up"?"on":""} onClick={()=>{setMode("up");setMsg(null);}}>계정 만들기</button>
+              </div>
+              <Field label="아이디" hint="이메일">
+                <input className="in" type="email" autoComplete="username" value={email}
+                  onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="you@example.com"/>
+              </Field>
+              <Field label="비밀번호" hint="6자 이상">
+                <input className="in" type="password" autoComplete={mode==="up"?"new-password":"current-password"}
+                  value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="••••••••"/>
+              </Field>
+              {msg ? <div className={`msg ${msg.bad?"bad":"ok"}`}>{msg.text}</div> : null}
+              <Btn variant="solid" onClick={submit} disabled={busy||!sb}>
+                {busy ? "확인 중…" : mode==="up" ? "계정 만들고 시작하기" : "로그인"}
+              </Btn>
+              <p className="note small" style={{marginTop:4}}>
+                한 번 로그인하면 이 브라우저에서는 자동으로 유지되고, 다른 기기에서는 같은 아이디로 로그인하면
+                기록이 그대로 이어집니다.
+              </p>
+              <div style={{display:"flex", gap:16, flexWrap:"wrap"}}>
+                <button className="linkbtn" onClick={()=>setSetup(true)}>저장소 다시 연결</button>
+                <button className="linkbtn" onClick={onLocal}>연결 없이 둘러보기</button>
+              </div>
+            </div>
+          </Pane>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APP
+   ═══════════════════════════════════════════════════════════ */
+function App(){
+  const [store, setStore] = useState(null);
+  const [data, setData] = useState(null);
+  const [tab, setTab] = useState("pairs");
+  const [status, setStatus] = useState("READY");
+  const timer = useRef(null);
+  const latest = useRef(null);
+
+  const enterCloud = useCallback(async (sb, user)=>{
+    const s = makeCloudStore(sb, user);
+    try{ const d = await s.load(); setStore(s); setData(d); }
+    catch(e){ alert("기록을 불러오지 못했습니다: " + (e.message||"")); }
+  },[]);
+  const enterLocal = useCallback(async ()=>{
+    const s = makeLocalStore();
+    const d = await s.load(); setStore(s); setData(d);
+  },[]);
+
+  useEffect(()=>{ document.documentElement.style.setProperty("--accent",
+    (data && data.settings && data.settings.accent) || "#1F4BFF"); },[data]);
+
+  const flush = useCallback(async ()=>{
+    if (!store || !latest.current) return;
+    setStatus("SAVING");
+    try{ await store.save(latest.current); setStatus("SAVED"); setTimeout(()=>setStatus("READY"),1400); }
+    catch(e){ setStatus("SAVE FAILED"); }
+  },[store]);
+
+  const mutate = useCallback(updater=>{
+    setData(prev=>{
+      const next = typeof updater==="function" ? updater(prev) : updater;
+      latest.current = next;
+      clearTimeout(timer.current);
+      timer.current = setTimeout(flush, 600);
+      setStatus("SAVING");
+      return next;
+    });
+  },[flush]);
+
+  useEffect(()=>{
+    const h = e => { if (status==="SAVING"){ e.preventDefault(); e.returnValue=""; } };
+    window.addEventListener("beforeunload", h);
+    return ()=>window.removeEventListener("beforeunload", h);
+  },[status]);
+
+  if (!store || !data) return <Gate onCloud={enterCloud} onLocal={enterLocal} />;
+
+  const S = data.settings;
+  const setPairs = v => mutate(d=>({...d, pairs: typeof v==="function"?v(d.pairs):v}));
+  const setGallery = v => mutate(d=>({...d, gallery: typeof v==="function"?v(d.gallery):v}));
+  const setLogs = v => mutate(d=>({...d, logs: typeof v==="function"?v(d.logs):v}));
+  const setSettings = v => mutate(d=>({...d, settings:{...d.settings, ...v}}));
+
+  return (
+    <div className="app">
+      <div className="edge" aria-hidden="true">
+        <span>PERSONAL ARCHIVE — CHARACTER PAIRS / COMMISSIONED WORKS / LOGS · NEO-SWISS WINDOW SYSTEM · BUILD 002</span>
+      </div>
+      <div className="shell">
+        <header className="mast">
+          <div className="mast-top">
+            <span className="coord">ARCHIVE · {fmtDate(todayISO())}</span>
+            <span className="rule"/>
+            <span className="coord">{store.mode==="cloud" ? "ACCOUNT SYNC ON" : "THIS BROWSER ONLY"}</span>
+          </div>
+          <h1>{(S.title||"PERSONAL ARCHIVE").toLowerCase()}<span className="dot">·</span></h1>
+          <div className="mast-sub">
+            <span className="serif">The Record of Ours</span>
+            <span className="coord who">{S.owner ? `KEEPER / ${S.owner}` : store.label}</span>
+          </div>
+        </header>
+
+        <nav className="tabs" aria-label="섹션">
+          {[["pairs","01","D-DAY"],["gallery","02","GALLERY"],["logs","03","LOGS"],["settings","04","SETTINGS"]]
+            .map(([id,n,label])=>(
+            <button key={id} className={`tab ${tab===id?"on":""}`} onClick={()=>setTab(id)}
+              aria-current={tab===id?"page":undefined}>
+              <span className="n">{n}</span>{label}
+            </button>
+          ))}
+        </nav>
+
+        <main className="main">
+          {tab==="pairs" && <PairsView pairs={data.pairs} setPairs={setPairs}/>}
+          {tab==="gallery" && <GalleryView gallery={data.gallery} setGallery={setGallery}
+            pairs={data.pairs} store={store} setStatus={setStatus}/>}
+          {tab==="logs" && <LogsView logs={data.logs} setLogs={setLogs} pairs={data.pairs}/>}
+          {tab==="settings" && <SettingsView data={data} setSettings={setSettings} store={store}
+            mutate={mutate} onSignOut={async()=>{ await flush(); await store.signOut(); location.reload(); }}/>}
+        </main>
+
+        <footer className="status">
+          <span>PAIRS {pad(data.pairs.length)}</span>
+          <span>IMAGES {pad(data.gallery.length)}</span>
+          <span>LOGS {pad(data.logs.length)}</span>
+          <span className="sp"/>
+          <span className={`state ${status==="SAVE FAILED"?"err":status!=="READY"?"live":""}`}>{status}</span>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+/* ── 01 · D-DAY ───────────────────────────────────────────── */
+function PairsView({ pairs, setPairs }){
+  const [editing, setEditing] = useState(null);
+  const sorted = useMemo(()=>[...pairs].sort((a,b)=>
+    (!!b.pinned!==!!a.pinned) ? (b.pinned?1:-1) : (a.startDate<b.startDate?-1:1)),[pairs]);
+
+  return (<>
+    <Pane idx="01" title="D-DAY / 페어 기록" meta={`${pad(pairs.length)} PAIRS`} pad={false}
+      actions={<Btn variant="solid" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}>
+      {pairs.length===0 ? (
+        <Empty line="아직 기록 중인 페어가 없습니다. 첫 페어와 시작일을 등록하면 오늘이 며칠째인지 세기 시작합니다."
+          action={<Btn variant="solid" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}/>
+      ) : (
+        <div className="grid grid-pairs">
+          {sorted.map(p=>(
+            <PairCard key={p.id} p={p} onEdit={()=>setEditing(p)}
+              onDelete={()=>setPairs(list=>list.filter(x=>x.id!==p.id))}/>
+          ))}
+        </div>
+      )}
+    </Pane>
+    {editing && <PairForm initial={editing} onCancel={()=>setEditing(null)} onSubmit={d=>{
+      setPairs(list => d.id ? list.map(x=>x.id===d.id?d:x) : [...list, {...d, id:uid()}]);
+      setEditing(null);
+    }}/>}
+  </>);
+}
+
+function PairCard({ p, onEdit, onDelete }){
+  const count = countFrom(p.startDate);
+  const { next, prevCount } = nextMilestone(p.startDate, count);
+  const span = next ? next.count - prevCount : 1;
+  const done = next ? Math.max(0, Math.min(1,(count-prevCount)/span)) : 1;
+  const left = next ? next.count - count : 0;
+  return (
+    <article className="card">
+      <div className="card-head">
+        <span className="card-tag">{p.pinned ? <><Star size={9}/> PINNED</> : "PAIR"}</span>
+        <span>SINCE {fmtDate(p.startDate)}</span>
+      </div>
+      <h3 className="pair-name">{p.nameA}<span className="cross"> × </span>{p.nameB}</h3>
+      {p.title ? <p className="pair-sub">{p.title}</p> : null}
+      <div className="count">
+        <span className="pre">D+</span>
+        <span className="num">{count>0?count:0}</span>
+        <span className="unit">일째</span>
+      </div>
+      {next ? (
+        <div className="ms">
+          <div className="ms-row"><span>NEXT · {next.label}</span><span>{left===0?"TODAY":`${left}일 남음`}</span></div>
+          <div className="ms-track"><span className="ms-fill" style={{width:`${done*100}%`}}/></div>
+          <div className="ms-row ms-foot"><span>{fmtDate(addDaysISO(p.startDate,next.count-1))}</span><span>{Math.round(done*100)}%</span></div>
+        </div>
+      ) : null}
+      {p.memo ? <p className="card-memo">{p.memo}</p> : null}
+      <div className="card-foot">
+        <button className="mini" onClick={onEdit}>수정</button>
+        <button className="mini del" onClick={()=>{ if(confirm(`'${p.nameA} × ${p.nameB}' 기록을 삭제할까요?`)) onDelete(); }}>삭제</button>
+      </div>
+    </article>
+  );
+}
+
+function PairForm({ initial, onCancel, onSubmit }){
+  const [f,setF] = useState({ id:initial.id, nameA:initial.nameA||"", nameB:initial.nameB||"",
+    title:initial.title||"", startDate:initial.startDate||todayISO(), memo:initial.memo||"", pinned:!!initial.pinned });
+  const set = k => e => setF({...f,[k]:e.target.value});
+  const preview = countFrom(f.startDate);
+  return (
+    <Modal idx={initial.id?"01·EDIT":"01·NEW"} title={initial.id?"페어 수정":"페어 추가"} onClose={onCancel}>
+      <div className="form">
+        <div className="f2">
+          <Field label="캐릭터 A"><input className="in" value={f.nameA} onChange={set("nameA")} placeholder="이름"/></Field>
+          <Field label="캐릭터 B"><input className="in" value={f.nameB} onChange={set("nameB")} placeholder="이름"/></Field>
+        </div>
+        <Field label="페어 부제" hint="선택"><input className="in" value={f.title} onChange={set("title")} placeholder="예: The Luminiferous Form"/></Field>
+        <Field label="시작일" hint="이 날이 1일째"><input type="date" className="in" value={f.startDate} onChange={set("startDate")}/></Field>
+        <div className="preview"><span>오늘 기준</span><strong>D+{preview>0?preview:0}일째</strong></div>
+        <Field label="메모" hint="선택"><textarea className="in ta" rows={3} value={f.memo} onChange={set("memo")}/></Field>
+        <label className="check"><input type="checkbox" checked={f.pinned}
+          onChange={e=>setF({...f,pinned:e.target.checked})}/><span>목록 맨 위에 고정</span></label>
+        <div className="foot">
+          <Btn onClick={onCancel}>취소</Btn>
+          <Btn variant="solid" onClick={()=>{
+            if(!f.nameA.trim()||!f.nameB.trim()) return alert("두 캐릭터 이름을 모두 입력해 주세요.");
+            if(!f.startDate) return alert("시작일을 선택해 주세요.");
+            onSubmit(f);
+          }}>{initial.id?"변경 저장":"페어 저장"}</Btn>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ── 02 · GALLERY ─────────────────────────────────────────── */
+function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
+  const [editing, setEditing] = useState(null);
+  const [view, setView] = useState(null);
+  const [fPair, setFPair] = useState("");
+  const [fTag, setFTag] = useState("");
+
+  const tags = useMemo(()=>{ const s=new Set(); gallery.forEach(g=>(g.tags||[]).forEach(t=>s.add(t))); return [...s].sort(); },[gallery]);
+  const list = useMemo(()=>gallery
+    .filter(g=>fPair?g.pairId===fPair:true)
+    .filter(g=>fTag?(g.tags||[]).includes(fTag):true)
+    .sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0)),[gallery,fPair,fTag]);
+
+  const submit = async (form, file) => {
+    let item = { ...form, id: form.id || uid() };
+    if (file){
+      setStatus("UPLOADING");
+      try{
+        const { blob, dataUrl } = await compress(file);
+        const { src, path } = await store.putImage(item.id, blob, dataUrl);
+        item.src = src; item.path = path;
+      }catch(e){ setStatus("SAVE FAILED"); alert("이미지를 저장하지 못했습니다. " + (e.message||"")); return; }
+    }
+    if (!item.createdAt) item.createdAt = Date.now();
+    setGallery(l => l.some(g=>g.id===item.id) ? l.map(g=>g.id===item.id?item:g) : [item, ...l]);
+    setEditing(null);
+  };
+
+  const remove = async item => {
+    try{ await store.delImage(item); }catch(e){}
+    setGallery(l=>l.filter(g=>g.id!==item.id));
+    setView(null);
+  };
+
+  return (<>
+    <Pane idx="02" title="GALLERY / 커미션 아카이브" meta={`${pad(list.length)} / ${pad(gallery.length)}`} pad={false}
+      actions={<>
+        <Btn variant="solid" onClick={()=>setEditing({})}>+ 그림 등록</Btn>
+        <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
+          <option value="">모든 페어</option>
+          {pairs.map(p=><option key={p.id} value={p.id}>{p.nameA} × {p.nameB}</option>)}
+        </select>
+        <select className="sel" value={fTag} onChange={e=>setFTag(e.target.value)}>
+          <option value="">모든 태그</option>
+          {tags.map(t=><option key={t} value={t}>#{t}</option>)}
+        </select>
+      </>}>
+      {gallery.length===0 ? (
+        <Empty line="받은 커미션을 등록해 두면 작가·날짜·페어별로 다시 찾을 수 있습니다."
+          action={<Btn variant="solid" onClick={()=>setEditing({})}>+ 그림 등록</Btn>}/>
+      ) : list.length===0 ? (
+        <Empty line="이 조건에 맞는 그림이 없습니다. 필터를 바꿔 보세요."/>
+      ) : (
+        <div className="grid grid-gal">
+          {list.map((g,i)=>(
+            <button key={g.id} className="thumb" onClick={()=>setView(g)}>
+              <span className="frame"><Pic item={g} store={store} alt={g.title||"작품"}/></span>
+              <span className="thumb-meta">
+                <span className="thumb-n">{pad(i+1)}</span>
+                <span className="thumb-t">{g.title||"UNTITLED"}</span>
+                <span className="thumb-a">{g.artist?`@${g.artist}`:"—"}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </Pane>
+
+    {editing && <GalleryForm initial={editing} pairs={pairs} store={store}
+      onCancel={()=>setEditing(null)} onSubmit={submit}/>}
+
+    {view && (
+      <Modal idx="02·VIEW" title={view.title||"UNTITLED"} onClose={()=>setView(null)} wide>
+        <div className="view">
+          <div className="view-img"><Pic item={view} store={store} alt={view.title||"작품"}/></div>
+          <dl className="metagrid">
+            <div><dt>작가</dt><dd>{view.artist||"—"}</dd></div>
+            <div><dt>받은 날</dt><dd>{fmtDate(view.date)||"—"}</dd></div>
+            <div><dt>페어</dt><dd>{(()=>{const p=pairs.find(x=>x.id===view.pairId); return p?`${p.nameA} × ${p.nameB}`:"—";})()}</dd></div>
+            <div><dt>태그</dt><dd>{(view.tags||[]).length?view.tags.map(t=>`#${t}`).join(" "):"—"}</dd></div>
+            {view.note ? <div className="wide"><dt>메모</dt><dd className="pre">{view.note}</dd></div> : null}
+          </dl>
+          <div className="foot">
+            <Btn onClick={()=>{ setEditing(view); setView(null); }}>정보 수정</Btn>
+            <Btn variant="danger" onClick={()=>{ if(confirm("이 그림을 아카이브에서 삭제할까요?")) remove(view); }}>삭제</Btn>
+          </div>
+        </div>
+      </Modal>
+    )}
+  </>);
+}
+
+function GalleryForm({ initial, pairs, store, onCancel, onSubmit }){
+  const [f,setF] = useState({ id:initial.id, title:initial.title||"", artist:initial.artist||"",
+    date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "),
+    note:initial.note||"", src:initial.src||"", path:initial.path||null, createdAt:initial.createdAt });
+  const [source, setSource] = useState(initial.src && !initial.path && !initial.src.startsWith("local:") ? "url" : "upload");
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(initial.id ? store.resolve(initial) : "");
+  const [busy, setBusy] = useState(false);
+  const set = k => e => setF({...f,[k]:e.target.value});
+
+  return (
+    <Modal idx={initial.id?"02·EDIT":"02·NEW"} title={initial.id?"작품 정보 수정":"그림 등록"} onClose={onCancel}>
+      <div className="form">
+        <div className="seg">
+          <button className={source==="upload"?"on":""} onClick={()=>setSource("upload")}>파일 올리기</button>
+          <button className={source==="url"?"on":""} onClick={()=>setSource("url")}>이미지 주소</button>
+        </div>
+        {source==="upload" ? (
+          <Field label="이미지 파일" hint="자동 압축 후 저장">
+            <input type="file" accept="image/*" className="in" onChange={e=>{
+              const f0=e.target.files&&e.target.files[0]; if(!f0) return;
+              setFile(f0); setPreview(URL.createObjectURL(f0));
+            }}/>
+          </Field>
+        ) : (
+          <Field label="이미지 주소" hint="https://…">
+            <input className="in" value={f.src.startsWith("local:")?"":f.src}
+              onChange={e=>{ setF({...f, src:e.target.value, path:null}); setPreview(e.target.value); setFile(null); }}
+              placeholder="https://"/>
+          </Field>
+        )}
+        {preview ? <div className="formprev"><img src={preview} alt="미리보기"/></div> : null}
+        <div className="f2">
+          <Field label="제목"><input className="in" value={f.title} onChange={set("title")} placeholder="작품 제목"/></Field>
+          <Field label="작가"><input className="in" value={f.artist} onChange={set("artist")} placeholder="아이디 / 이름"/></Field>
+        </div>
+        <div className="f2">
+          <Field label="받은 날"><input type="date" className="in" value={f.date} onChange={set("date")}/></Field>
+          <Field label="페어" hint="선택">
+            <select className="in" value={f.pairId} onChange={set("pairId")}>
+              <option value="">연결 안 함</option>
+              {pairs.map(p=><option key={p.id} value={p.id}>{p.nameA} × {p.nameB}</option>)}
+            </select>
+          </Field>
+        </div>
+        <Field label="태그" hint="쉼표로 구분"><input className="in" value={f.tags} onChange={set("tags")} placeholder="일러스트, 반신, 생일"/></Field>
+        <Field label="메모" hint="선택"><textarea className="in ta" rows={3} value={f.note} onChange={set("note")}/></Field>
+        <div className="foot">
+          <Btn onClick={onCancel}>취소</Btn>
+          <Btn variant="solid" disabled={busy} onClick={async()=>{
+            if (source==="upload" && !file && !initial.id) return alert("등록할 이미지 파일을 선택해 주세요.");
+            if (source==="url" && !f.src.trim()) return alert("이미지 주소를 입력해 주세요.");
+            setBusy(true);
+            await onSubmit({...f, tags:f.tags.split(",").map(t=>t.trim()).filter(Boolean)}, source==="upload"?file:null);
+            setBusy(false);
+          }}>{busy?"저장 중…":initial.id?"변경 저장":"아카이브에 추가"}</Btn>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ── 03 · LOGS ────────────────────────────────────────────── */
+function LogsView({ logs, setLogs, pairs }){
+  const [editing,setEditing] = useState(null);
+  const [open,setOpen] = useState(null);
+  const [q,setQ] = useState("");
+  const [fPair,setFPair] = useState("");
+
+  const list = useMemo(()=>{
+    const n=q.trim().toLowerCase();
+    return logs.filter(l=>fPair?l.pairId===fPair:true)
+      .filter(l=>n?((l.title||"")+" "+(l.body||"")+" "+(l.tags||[]).join(" ")).toLowerCase().includes(n):true)
+      .sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0));
+  },[logs,q,fPair]);
+
+  return (<>
+    <Pane idx="03" title="LOGS / 글 아카이브" meta={`${pad(list.length)} / ${pad(logs.length)}`} pad={false}
+      actions={<>
+        <Btn variant="solid" onClick={()=>setEditing({})}>+ 새 글 쓰기</Btn>
+        <input className="search" value={q} onChange={e=>setQ(e.target.value)} placeholder="제목·본문·태그 검색"/>
+        <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
+          <option value="">모든 페어</option>
+          {pairs.map(p=><option key={p.id} value={p.id}>{p.nameA} × {p.nameB}</option>)}
+        </select>
+      </>}>
+      {logs.length===0 ? (
+        <Empty line="첫 로그를 남겨 보세요. 날짜와 페어를 붙여두면 나중에 흐름을 따라 읽기 좋습니다."
+          action={<Btn variant="solid" onClick={()=>setEditing({})}>+ 새 글 쓰기</Btn>}/>
+      ) : list.length===0 ? (
+        <Empty line="검색 결과가 없습니다. 다른 낱말로 찾아보세요."/>
+      ) : (
+        <ul className="logs">
+          {list.map((l,i)=>{
+            const p = pairs.find(x=>x.id===l.pairId);
+            return (
+              <li key={l.id}>
+                <button className="log" onClick={()=>setOpen(l)}>
+                  <span className="log-n">{pad(list.length-i)}</span>
+                  <span>
+                    <span className="log-t">{l.title||"무제"}</span>
+                    <span className="log-ex">{(l.body||"").slice(0,90)}</span>
+                  </span>
+                  <span className="log-side">
+                    <span>{fmtDate(l.date)}</span>
+                    <span className="log-pair">{p?`${p.nameA}×${p.nameB}`:"—"}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Pane>
+
+    {editing && <LogForm initial={editing} pairs={pairs} onCancel={()=>setEditing(null)} onSubmit={d=>{
+      const now=Date.now();
+      setLogs(l => d.id ? l.map(x=>x.id===d.id?{...d,updatedAt:now}:x) : [{...d,id:uid(),createdAt:now,updatedAt:now}, ...l]);
+      setEditing(null); setOpen(null);
+    }}/>}
+
+    {open && (
+      <Modal idx="03·READ" title={open.title||"무제"} onClose={()=>setOpen(null)} wide>
+        <div>
+          <div className="read-meta">
+            <span>{fmtDate(open.date)}</span>
+            <span>{(()=>{const p=pairs.find(x=>x.id===open.pairId); return p?`${p.nameA} × ${p.nameB}`:"페어 없음";})()}</span>
+            <span>{(open.tags||[]).map(t=>`#${t}`).join(" ")}</span>
+          </div>
+          <div className="pre read-body">{open.body}</div>
+          <div className="foot">
+            <Btn onClick={()=>{ setEditing(open); setOpen(null); }}>수정</Btn>
+            <Btn variant="danger" onClick={()=>{ if(confirm("이 글을 삭제할까요?")){ setLogs(l=>l.filter(x=>x.id!==open.id)); setOpen(null);} }}>삭제</Btn>
+          </div>
+        </div>
+      </Modal>
+    )}
+  </>);
+}
+
+function LogForm({ initial, pairs, onCancel, onSubmit }){
+  const [f,setF] = useState({ id:initial.id, title:initial.title||"", body:initial.body||"",
+    date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "), createdAt:initial.createdAt });
+  const set = k => e => setF({...f,[k]:e.target.value});
+  return (
+    <Modal idx={initial.id?"03·EDIT":"03·NEW"} title={initial.id?"글 수정":"새 글"} onClose={onCancel} wide>
+      <div className="form">
+        <Field label="제목"><input className="in lg" value={f.title} onChange={set("title")} placeholder="제목"/></Field>
+        <div className="f2">
+          <Field label="날짜"><input type="date" className="in" value={f.date} onChange={set("date")}/></Field>
+          <Field label="페어" hint="선택">
+            <select className="in" value={f.pairId} onChange={set("pairId")}>
+              <option value="">연결 안 함</option>
+              {pairs.map(p=><option key={p.id} value={p.id}>{p.nameA} × {p.nameB}</option>)}
+            </select>
+          </Field>
+        </div>
+        <Field label="본문"><textarea className="in ta lg" rows={14} value={f.body} onChange={set("body")}/></Field>
+        <Field label="태그" hint="쉼표로 구분"><input className="in" value={f.tags} onChange={set("tags")} placeholder="일상, 설정, 대화"/></Field>
+        <div className="foot">
+          <Btn onClick={onCancel}>취소</Btn>
+          <Btn variant="solid" onClick={()=>{
+            if(!f.title.trim() && !f.body.trim()) return alert("제목이나 본문 중 하나는 채워 주세요.");
+            onSubmit({...f, tags:f.tags.split(",").map(t=>t.trim()).filter(Boolean)});
+          }}>{initial.id?"변경 저장":"글 저장"}</Btn>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ── 04 · SETTINGS ────────────────────────────────────────── */
+const PRESETS = [["BLUE","#1F4BFF"],["COBALT","#0057D9"],["RED","#E8290B"],["ORANGE","#FF6A00"],
+  ["GREEN","#0E9F6E"],["VIOLET","#6E3BFF"],["PINK","#F0399B"],["INK","#0B0B0C"]];
+
+function SettingsView({ data, setSettings, store, mutate, onSignOut }){
+  const [d,setD] = useState(data.settings);
+  useEffect(()=>setD(data.settings),[data.settings]);
+
+  const exportJSON = () => {
+    const blob = new Blob([JSON.stringify({exportedAt:new Date().toISOString(), ...data},null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download=`archive-backup-${todayISO()}.json`; a.click(); URL.revokeObjectURL(a.href);
+  };
+  const importJSON = async e => {
+    const file=e.target.files&&e.target.files[0]; if(!file) return;
+    try{
+      const j = JSON.parse(await file.text());
+      const merge=(cur,add)=>{ const m=new Map((cur||[]).map(x=>[x.id,x])); (add||[]).forEach(x=>x&&x.id&&m.set(x.id,x)); return [...m.values()]; };
+      mutate(prev=>({...prev,
+        settings:{...prev.settings, ...(j.settings||{})},
+        pairs:merge(prev.pairs,j.pairs), gallery:merge(prev.gallery,j.gallery), logs:merge(prev.logs,j.logs)}));
+      alert("백업을 불러왔습니다. 같은 항목은 백업 내용으로 덮어썼습니다.");
+    }catch(err){ alert("파일을 읽지 못했습니다. 이 아카이브에서 내보낸 JSON인지 확인해 주세요."); }
+    e.target.value="";
+  };
+
+  return (
+    <div className="stack">
+      <Pane idx="04" title="ACCENT / 포인트 컬러">
+        <div className="sws">
+          {PRESETS.map(([name,hex])=>(
+            <button key={hex} className={`sw ${(d.accent||"").toUpperCase()===hex?"on":""}`}
+              onClick={()=>setSettings({accent:hex})} title={name}>
+              <span style={{background:hex}}/><em>{name}</em>
+            </button>
+          ))}
+        </div>
+        <div className="f2 mt">
+          <Field label="직접 고르기">
+            <input type="color" className="color" value={d.accent} onChange={e=>setSettings({accent:e.target.value})}/>
+          </Field>
+          <Field label="HEX 코드">
+            <input className="in" value={d.accent} onChange={e=>setD({...d,accent:e.target.value})}
+              onBlur={()=>/^#[0-9a-fA-F]{6}$/.test(d.accent)&&setSettings({accent:d.accent})} placeholder="#1F4BFF"/>
+          </Field>
+        </div>
+        <p className="note">고른 색은 즉시 전체 화면에 적용되고 계정에 저장됩니다.</p>
+      </Pane>
+
+      <Pane idx="05" title="ARCHIVE / 이름">
+        <div className="f2">
+          <Field label="아카이브 제목">
+            <input className="in" value={d.title} onChange={e=>setD({...d,title:e.target.value})}
+              onBlur={()=>setSettings({title:d.title})}/>
+          </Field>
+          <Field label="기록자" hint="선택">
+            <input className="in" value={d.owner} onChange={e=>setD({...d,owner:e.target.value})}
+              onBlur={()=>setSettings({owner:d.owner})}/>
+          </Field>
+        </div>
+      </Pane>
+
+      <Pane idx="06" title="ACCOUNT / 계정과 저장">
+        <p className="note" style={{marginTop:0}}>
+          {store.mode==="cloud"
+            ? `${store.label} 계정으로 로그인되어 있습니다. 기록과 이미지는 계정에 저장되므로 다른 기기·브라우저에서 같은 아이디로 로그인하면 그대로 이어집니다.`
+            : "지금은 연결 없이 이 브라우저에만 저장하는 모드입니다. 다른 기기에서는 보이지 않고, 브라우저 데이터를 지우면 사라집니다."}
+        </p>
+        <dl className="metagrid mt">
+          <div><dt>페어</dt><dd>{data.pairs.length}건</dd></div>
+          <div><dt>그림</dt><dd>{data.gallery.length}건</dd></div>
+          <div><dt>로그</dt><dd>{data.logs.length}건</dd></div>
+        </dl>
+        <div className="foot mt">
+          <Btn onClick={exportJSON}>백업 내려받기</Btn>
+          <label className="btn filebtn">백업 불러오기<input type="file" accept="application/json" onChange={importJSON}/></label>
+          <Btn variant="danger" onClick={()=>{ if(confirm("로그아웃할까요?")) onSignOut(); }}>로그아웃</Btn>
+        </div>
+        <p className="note small">백업 파일에는 글·페어·작품 정보가 들어갑니다. 업로드한 이미지 원본은 저장소에 그대로 남습니다.</p>
+      </Pane>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
