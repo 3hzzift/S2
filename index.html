@@ -59,8 +59,9 @@ img{max-width:100%;}
 .tabs::-webkit-scrollbar{display:none;}
 .tab{background:transparent; border:1px solid var(--line); border-bottom:none; padding:10px 16px 9px;
   margin-right:-1px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-  cursor:pointer; display:flex; align-items:baseline; gap:8px; color:var(--ink); white-space:nowrap;}
-.tab .n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em;}
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; line-height:1;
+  color:var(--ink); white-space:nowrap;}
+.tab .n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em; line-height:1;}
 .tab:hover{background:var(--pane);}
 .tab.on{background:var(--ink); color:#fff;}
 .tab.on .n{color:var(--accent);}
@@ -302,7 +303,9 @@ code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 
   .mast{padding-bottom:8px;}
   .mast-top .coord:last-child{display:none;}
   .tabs{position:sticky; top:0; z-index:6; background:var(--paper); margin:14px -12px 0; padding:0 12px;}
-  .tab{flex:1 0 auto; justify-content:center; min-height:var(--tap); padding:0 12px;}
+  .tab{flex:1 1 auto; justify-content:center; align-items:center; height:var(--tap); min-height:var(--tap);
+    padding:0 6px; font-size:10px; letter-spacing:.06em; gap:5px;}
+  .tab .n{font-size:8.5px; letter-spacing:.04em;}
   .f2{grid-template-columns:1fr;}
   .pane-act{gap:6px;}
   .pane-act .btn{flex:1 0 100%;}
