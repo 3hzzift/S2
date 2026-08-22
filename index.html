@@ -143,6 +143,26 @@ img{max-width:100%;}
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .imgph{width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-family:var(--mono);
   font-size:9px; letter-spacing:.2em; color:var(--g1);}
+.frame{position:relative;}
+.cnt{position:absolute; top:0; right:0; background:var(--ink); color:#fff; font-family:var(--mono);
+  font-size:9px; letter-spacing:.08em; padding:3px 5px; border-left:1px solid var(--line); border-bottom:1px solid var(--line);}
+
+/* 게시물 보기 — 여러 장 넘겨보기 */
+.stage{position:relative;}
+.nav{position:absolute; top:50%; transform:translateY(-50%); width:34px; height:52px; border:1px solid var(--line);
+  background:var(--pane); color:var(--ink); font-size:20px; line-height:1; cursor:pointer; display:flex;
+  align-items:center; justify-content:center; padding:0;}
+.nav:hover{background:var(--ink); color:#fff;}
+.nav.prev{left:8px;} .nav.next{right:8px;}
+.pageno{position:absolute; left:8px; bottom:8px; background:var(--ink); color:#fff; font-family:var(--mono);
+  font-size:9px; letter-spacing:.14em; padding:3px 6px;}
+.strip{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px;}
+.strip::-webkit-scrollbar{height:4px;}
+.strip::-webkit-scrollbar-thumb{background:var(--g2);}
+.stripcell{flex:0 0 62px; height:62px; border:1px solid var(--g2); background:var(--g3); padding:0;
+  cursor:pointer; overflow:hidden;}
+.stripcell img{width:100%; height:100%; object-fit:cover; display:block;}
+.stripcell.on{border-color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent);}
 
 /* ── logs ── */
 .logs{list-style:none; margin:0; padding:0;}
@@ -190,6 +210,28 @@ img{max-width:100%;}
 .preview strong{font-family:var(--sans); font-size:20px; letter-spacing:-.03em; color:var(--accent);}
 .formprev{border:1px solid var(--g2); padding:6px; background:var(--g3);}
 .formprev img{display:block; max-height:220px; margin:0 auto;}
+.prevwrap{border:1px solid var(--g2); padding:8px; background:var(--pane);}
+.prevhead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;
+  font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--g1);}
+.prevgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:6px;}
+.prevcell{position:relative; aspect-ratio:1/1; border:1px solid var(--line); background:var(--g3); overflow:hidden;}
+.prevcell img{width:100%; height:100%; object-fit:cover; display:block;}
+.prevn{position:absolute; left:0; bottom:0; background:var(--ink); color:#fff; font-family:var(--mono);
+  font-size:9px; padding:1px 4px; letter-spacing:.08em;}
+.prevx{position:absolute; top:0; right:0; width:22px; height:22px; border:none; border-left:1px solid var(--line);
+  border-bottom:1px solid var(--line); background:var(--pane); cursor:pointer; display:flex;
+  align-items:center; justify-content:center; padding:0;}
+.prevx:hover{background:var(--danger);}
+.prevx:hover line{stroke:#fff;}
+.prevcell.cover{box-shadow:inset 0 0 0 2px var(--accent);}
+.prevcell.cover .prevn{background:var(--accent);}
+.prevmove{position:absolute; right:0; bottom:0; display:flex;}
+.prevmove button{width:20px; height:20px; border:none; border-left:1px solid var(--line); border-top:1px solid var(--line);
+  background:var(--pane); cursor:pointer; font-size:12px; line-height:1; padding:0; color:var(--ink);}
+.prevmove button:hover:not([disabled]){background:var(--ink); color:#fff;}
+.prevmove button[disabled]{opacity:.3; cursor:default;}
+.addrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.addrow .in{flex:1; min-width:180px;}
 .seg{display:flex;}
 .seg button{flex:1; border:1px solid var(--line); background:var(--pane); padding:10px 8px; font-size:10.5px;
   font-weight:700; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; margin-right:-1px;}
@@ -792,6 +834,12 @@ function PairForm({ initial, onCancel, onSubmit }){
 }
 
 /* ── 02 · GALLERY ─────────────────────────────────────────── */
+/* 한 게시물이 이미지 여러 장을 가집니다.
+   item.images = [{id, src, path}]  ·  옛 형식(item.src)은 자동으로 변환 */
+const imagesOf = it => (it.images && it.images.length)
+  ? it.images
+  : (it.src ? [{ id: it.id, src: it.src, path: it.path || null }] : []);
+
 function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
   const [editing, setEditing] = useState(null);
   const [view, setView] = useState(null);
@@ -804,29 +852,56 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
     .filter(g=>fTag?(g.tags||[]).includes(fTag):true)
     .sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0)),[gallery,fPair,fTag]);
 
-  const submit = async (form, file) => {
-    let item = { ...form, id: form.id || uid() };
-    if (file){
-      setStatus("UPLOADING");
-      try{
-        const { blob, dataUrl } = await compress(file);
-        const { src, path } = await store.putImage(item.id, blob, dataUrl);
-        item.src = src; item.path = path;
-      }catch(e){ setStatus("SAVE FAILED"); alert("이미지를 저장하지 못했습니다. " + (e.message||"")); return; }
+  const totalImages = useMemo(()=>gallery.reduce((n,g)=>n+imagesOf(g).length,0),[gallery]);
+
+  /* entries: [{kind:'keep'|'file'|'url', ...}] 순서가 그대로 이미지 순서 */
+  const submit = async (form, entries, removed, onProgress) => {
+    const id = form.id || uid();
+    const images = [];
+    const fileCount = entries.filter(e=>e.kind==="file").length;
+    let done = 0;
+    if (fileCount) setStatus("UPLOADING");
+
+    for (const e of entries){
+      if (e.kind === "file"){
+        onProgress && onProgress(done, fileCount);
+        const imgId = uid();
+        try{
+          const { blob, dataUrl } = await compress(e.file);
+          const { src, path } = await store.putImage(imgId, blob, dataUrl);
+          images.push({ id: imgId, src, path });
+        }catch(err){
+          setStatus("SAVE FAILED");
+          alert(`'${e.file.name}'을(를) 저장하지 못했습니다. ${err.message||""}`
+            + (images.length ? `\n먼저 올라간 ${images.length}장은 그대로 저장됩니다.` : ""));
+          break;
+        }
+        done++;
+      } else {
+        images.push({ id: e.id || uid(), src: e.src, path: e.path || null });
+      }
     }
-    if (!item.createdAt) item.createdAt = Date.now();
-    setGallery(l => l.some(g=>g.id===item.id) ? l.map(g=>g.id===item.id?item:g) : [item, ...l]);
+    onProgress && onProgress(fileCount, fileCount);
+    if (!images.length) return alert("이미지를 한 장 이상 넣어 주세요.");
+
+    for (const rm of (removed||[])){ try{ await store.delImage(rm); }catch(err){} }
+
+    const item = { ...form, id, images, src:undefined, path:undefined,
+      createdAt: form.createdAt || Date.now() };
+    delete item.src; delete item.path;
+    setGallery(l => l.some(g=>g.id===id) ? l.map(g=>g.id===id?item:g) : [item, ...l]);
     setEditing(null);
   };
 
   const remove = async item => {
-    try{ await store.delImage(item); }catch(e){}
+    for (const img of imagesOf(item)){ try{ await store.delImage(img); }catch(e){} }
     setGallery(l=>l.filter(g=>g.id!==item.id));
     setView(null);
   };
 
   return (<>
-    <Pane idx="02" title="GALLERY / 커미션 아카이브" meta={`${pad(list.length)} / ${pad(gallery.length)}`} pad={false}
+    <Pane idx="02" title="GALLERY / 커미션 아카이브"
+      meta={`${pad(list.length)} POSTS · ${pad(totalImages)} IMAGES`} pad={false}
       actions={<>
         <Btn variant="solid" onClick={()=>setEditing({})}>+ 그림 등록</Btn>
         <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
@@ -839,22 +914,28 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
         </select>
       </>}>
       {gallery.length===0 ? (
-        <Empty line="받은 커미션을 등록해 두면 작가·날짜·페어별로 다시 찾을 수 있습니다."
+        <Empty line="받은 커미션을 등록해 두면 작가·날짜·페어별로 다시 찾을 수 있습니다. 한 게시물에 여러 장을 함께 넣을 수 있어요."
           action={<Btn variant="solid" onClick={()=>setEditing({})}>+ 그림 등록</Btn>}/>
       ) : list.length===0 ? (
         <Empty line="이 조건에 맞는 그림이 없습니다. 필터를 바꿔 보세요."/>
       ) : (
         <div className="grid grid-gal">
-          {list.map((g,i)=>(
-            <button key={g.id} className="thumb" onClick={()=>setView(g)}>
-              <span className="frame"><Pic item={g} store={store} alt={g.title||"작품"}/></span>
-              <span className="thumb-meta">
-                <span className="thumb-n">{pad(i+1)}</span>
-                <span className="thumb-t">{g.title||"UNTITLED"}</span>
-                <span className="thumb-a">{g.artist?`@${g.artist}`:"—"}</span>
-              </span>
-            </button>
-          ))}
+          {list.map((g,i)=>{
+            const imgs = imagesOf(g);
+            return (
+              <button key={g.id} className="thumb" onClick={()=>setView(g)}>
+                <span className="frame">
+                  <Pic item={imgs[0]||{}} store={store} alt={g.title||"작품"}/>
+                  {imgs.length>1 ? <span className="cnt">{pad(imgs.length)}</span> : null}
+                </span>
+                <span className="thumb-meta">
+                  <span className="thumb-n">{pad(i+1)}</span>
+                  <span className="thumb-t">{g.title||"UNTITLED"}</span>
+                  <span className="thumb-a">{g.artist?`@${g.artist}`:"—"}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </Pane>
@@ -862,59 +943,150 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
     {editing && <GalleryForm initial={editing} pairs={pairs} store={store}
       onCancel={()=>setEditing(null)} onSubmit={submit}/>}
 
-    {view && (
-      <Modal idx="02·VIEW" title={view.title||"UNTITLED"} onClose={()=>setView(null)} wide>
-        <div className="view">
-          <div className="view-img"><Pic item={view} store={store} alt={view.title||"작품"}/></div>
-          <dl className="metagrid">
-            <div><dt>작가</dt><dd>{view.artist||"—"}</dd></div>
-            <div><dt>받은 날</dt><dd>{fmtDate(view.date)||"—"}</dd></div>
-            <div><dt>페어</dt><dd>{(()=>{const p=pairs.find(x=>x.id===view.pairId); return p?`${p.nameA} × ${p.nameB}`:"—";})()}</dd></div>
-            <div><dt>태그</dt><dd>{(view.tags||[]).length?view.tags.map(t=>`#${t}`).join(" "):"—"}</dd></div>
-            {view.note ? <div className="wide"><dt>메모</dt><dd className="pre">{view.note}</dd></div> : null}
-          </dl>
-          <div className="foot">
-            <Btn onClick={()=>{ setEditing(view); setView(null); }}>정보 수정</Btn>
-            <Btn variant="danger" onClick={()=>{ if(confirm("이 그림을 아카이브에서 삭제할까요?")) remove(view); }}>삭제</Btn>
-          </div>
-        </div>
-      </Modal>
-    )}
+    {view && <GalleryDetail item={view} pairs={pairs} store={store}
+      onClose={()=>setView(null)}
+      onEdit={()=>{ setEditing(view); setView(null); }}
+      onDelete={()=>{ if(confirm("이 게시물과 안에 든 이미지를 모두 삭제할까요?")) remove(view); }}/>}
   </>);
 }
 
+/* ── 게시물 보기 (여러 장 넘겨보기) ── */
+function GalleryDetail({ item, pairs, store, onClose, onEdit, onDelete }){
+  const imgs = imagesOf(item);
+  const [n, setN] = useState(0);
+  const cur = imgs[Math.min(n, imgs.length-1)] || {};
+  const go = d => setN(v => (v + d + imgs.length) % imgs.length);
+
+  useEffect(()=>{
+    if (imgs.length < 2) return;
+    const h = e => { if(e.key==="ArrowRight") go(1); if(e.key==="ArrowLeft") go(-1); };
+    window.addEventListener("keydown", h);
+    return ()=>window.removeEventListener("keydown", h);
+  },[imgs.length]);
+
+  return (
+    <Modal idx="02·VIEW" title={item.title||"UNTITLED"} onClose={onClose} wide>
+      <div className="view">
+        <div className="stage">
+          <div className="view-img"><Pic item={cur} store={store} alt={item.title||"작품"}/></div>
+          {imgs.length>1 ? (<>
+            <button className="nav prev" onClick={()=>go(-1)} aria-label="이전 이미지">‹</button>
+            <button className="nav next" onClick={()=>go(1)} aria-label="다음 이미지">›</button>
+            <span className="pageno">{pad(n+1)} / {pad(imgs.length)}</span>
+          </>) : null}
+        </div>
+
+        {imgs.length>1 ? (
+          <div className="strip">
+            {imgs.map((im,i)=>(
+              <button key={im.id||i} className={`stripcell ${i===n?"on":""}`} onClick={()=>setN(i)}
+                aria-label={`${i+1}번째 이미지 보기`} aria-current={i===n}>
+                <Pic item={im} store={store} alt=""/>
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        <dl className="metagrid">
+          <div><dt>작가</dt><dd>{item.artist||"—"}</dd></div>
+          <div><dt>받은 날</dt><dd>{fmtDate(item.date)||"—"}</dd></div>
+          <div><dt>페어</dt><dd>{(()=>{const p=pairs.find(x=>x.id===item.pairId); return p?`${p.nameA} × ${p.nameB}`:"—";})()}</dd></div>
+          <div><dt>장수</dt><dd>{imgs.length}장</dd></div>
+          <div><dt>태그</dt><dd>{(item.tags||[]).length?item.tags.map(t=>`#${t}`).join(" "):"—"}</dd></div>
+          {item.note ? <div className="wide"><dt>메모</dt><dd className="pre">{item.note}</dd></div> : null}
+        </dl>
+        <div className="foot">
+          <Btn onClick={onEdit}>수정</Btn>
+          <Btn variant="danger" onClick={onDelete}>삭제</Btn>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ── 등록 / 수정 ── */
 function GalleryForm({ initial, pairs, store, onCancel, onSubmit }){
   const [f,setF] = useState({ id:initial.id, title:initial.title||"", artist:initial.artist||"",
     date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "),
-    note:initial.note||"", src:initial.src||"", path:initial.path||null, createdAt:initial.createdAt });
-  const [source, setSource] = useState(initial.src && !initial.path && !initial.src.startsWith("local:") ? "url" : "upload");
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(initial.id ? store.resolve(initial) : "");
+    note:initial.note||"", createdAt:initial.createdAt });
+  const [entries, setEntries] = useState(()=>imagesOf(initial).map(im=>({
+    kind:"keep", key:im.id||uid(), id:im.id, src:im.src, path:im.path||null })));
+  const [removed, setRemoved] = useState([]);
+  const [urlInput, setUrlInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [prog, setProg] = useState(null);
   const set = k => e => setF({...f,[k]:e.target.value});
 
+  const addFiles = e => {
+    const picked = Array.from(e.target.files || []);
+    if (!picked.length) return;
+    setEntries(prev => [...prev, ...picked.map(file=>({
+      kind:"file", key:uid(), file, src:URL.createObjectURL(file) }))]);
+    e.target.value = "";
+  };
+  const addUrl = () => {
+    const u = urlInput.trim();
+    if (!u) return;
+    setEntries(prev => [...prev, { kind:"url", key:uid(), src:u }]);
+    setUrlInput("");
+  };
+  const drop = i => setEntries(prev => {
+    const e = prev[i];
+    if (e.kind==="file") URL.revokeObjectURL(e.src);
+    if (e.kind==="keep") setRemoved(r=>[...r, { id:e.id, src:e.src, path:e.path }]);
+    return prev.filter((_,k)=>k!==i);
+  });
+  const move = (i, d) => setEntries(prev => {
+    const j = i + d;
+    if (j<0 || j>=prev.length) return prev;
+    const next = [...prev];
+    [next[i], next[j]] = [next[j], next[i]];
+    return next;
+  });
+
+  const fileCount = entries.filter(e=>e.kind==="file").length;
+
   return (
-    <Modal idx={initial.id?"02·EDIT":"02·NEW"} title={initial.id?"작품 정보 수정":"그림 등록"} onClose={onCancel}>
+    <Modal idx={initial.id?"02·EDIT":"02·NEW"} title={initial.id?"게시물 수정":"그림 등록"} onClose={onCancel} wide>
       <div className="form">
-        <div className="seg">
-          <button className={source==="upload"?"on":""} onClick={()=>setSource("upload")}>파일 올리기</button>
-          <button className={source==="url"?"on":""} onClick={()=>setSource("url")}>이미지 주소</button>
-        </div>
-        {source==="upload" ? (
-          <Field label="이미지 파일" hint="자동 압축 후 저장">
-            <input type="file" accept="image/*" className="in" onChange={e=>{
-              const f0=e.target.files&&e.target.files[0]; if(!f0) return;
-              setFile(f0); setPreview(URL.createObjectURL(f0));
-            }}/>
-          </Field>
-        ) : (
-          <Field label="이미지 주소" hint="https://…">
-            <input className="in" value={f.src.startsWith("local:")?"":f.src}
-              onChange={e=>{ setF({...f, src:e.target.value, path:null}); setPreview(e.target.value); setFile(null); }}
-              placeholder="https://"/>
-          </Field>
-        )}
-        {preview ? <div className="formprev"><img src={preview} alt="미리보기"/></div> : null}
+        <Field label="이미지" hint="여러 장 선택 가능 · 첫 장이 대표 이미지">
+          <div className="addrow">
+            <label className="btn filebtn">파일 추가
+              <input type="file" accept="image/*" multiple onChange={addFiles}/>
+            </label>
+            <input className="in" value={urlInput} onChange={e=>setUrlInput(e.target.value)}
+              onKeyDown={e=>{ if(e.key==="Enter"){ e.preventDefault(); addUrl(); } }}
+              placeholder="이미지 주소로 추가 (https://…)"/>
+            <Btn onClick={addUrl}>주소 추가</Btn>
+          </div>
+        </Field>
+
+        {entries.length ? (
+          <div className="prevwrap">
+            <div className="prevhead">
+              <span>{pad(entries.length)}장 · 왼쪽부터 순서대로</span>
+              <button className="linkbtn" onClick={()=>{
+                entries.forEach(e=>{ if(e.kind==="file") URL.revokeObjectURL(e.src);
+                  if(e.kind==="keep") setRemoved(r=>[...r,{id:e.id,src:e.src,path:e.path}]); });
+                setEntries([]);
+              }}>모두 빼기</button>
+            </div>
+            <div className="prevgrid">
+              {entries.map((e,i)=>(
+                <div className={`prevcell ${i===0?"cover":""}`} key={e.key}>
+                  <img src={e.src} alt={`이미지 ${i+1}`}/>
+                  <span className="prevn">{i===0?"대표":pad(i+1)}</span>
+                  <button className="prevx" onClick={()=>drop(i)} aria-label={`${i+1}번째 이미지 빼기`}><XIcon/></button>
+                  <span className="prevmove">
+                    <button onClick={()=>move(i,-1)} disabled={i===0} aria-label="앞으로">‹</button>
+                    <button onClick={()=>move(i,1)} disabled={i===entries.length-1} aria-label="뒤로">›</button>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : <p className="note small" style={{margin:0}}>아직 넣은 이미지가 없습니다.</p>}
+
         <div className="f2">
           <Field label="제목"><input className="in" value={f.title} onChange={set("title")} placeholder="작품 제목"/></Field>
           <Field label="작가"><input className="in" value={f.artist} onChange={set("artist")} placeholder="아이디 / 이름"/></Field>
@@ -930,15 +1102,24 @@ function GalleryForm({ initial, pairs, store, onCancel, onSubmit }){
         </div>
         <Field label="태그" hint="쉼표로 구분"><input className="in" value={f.tags} onChange={set("tags")} placeholder="일러스트, 반신, 생일"/></Field>
         <Field label="메모" hint="선택"><textarea className="in ta" rows={3} value={f.note} onChange={set("note")}/></Field>
+
         <div className="foot">
-          <Btn onClick={onCancel}>취소</Btn>
+          <Btn onClick={onCancel} disabled={busy}>취소</Btn>
           <Btn variant="solid" disabled={busy} onClick={async()=>{
-            if (source==="upload" && !file && !initial.id) return alert("등록할 이미지 파일을 선택해 주세요.");
-            if (source==="url" && !f.src.trim()) return alert("이미지 주소를 입력해 주세요.");
+            if (!entries.length) return alert("이미지를 한 장 이상 넣어 주세요.");
             setBusy(true);
-            await onSubmit({...f, tags:f.tags.split(",").map(t=>t.trim()).filter(Boolean)}, source==="upload"?file:null);
-            setBusy(false);
-          }}>{busy?"저장 중…":initial.id?"변경 저장":"아카이브에 추가"}</Btn>
+            await onSubmit(
+              {...f, tags:f.tags.split(",").map(t=>t.trim()).filter(Boolean)},
+              entries, removed,
+              (done,total)=>setProg({done,total})
+            );
+            setProg(null); setBusy(false);
+          }}>
+            {busy
+              ? (prog && prog.total>1 ? `올리는 중 ${prog.done}/${prog.total}` : "저장 중…")
+              : initial.id ? "변경 저장"
+              : `아카이브에 추가${entries.length>1?` (${entries.length}장)`:""}`}
+          </Btn>
         </div>
       </div>
     </Modal>
