@@ -46,9 +46,18 @@ create policy "gallery delete" on storage.objects for delete to authenticated
 
 ## 2. GitHub Pages 올리기
 
-1. 새 저장소 생성 → `index.html` 업로드 (README도 함께 올려도 됩니다).
+1. 새 저장소 생성 → 아래 파일을 모두 같은 위치(저장소 최상단)에 업로드합니다.
+   - `index.html` — 사이트 전체
+   - `manifest.webmanifest` — 홈 화면 앱 설정
+   - `apple-touch-icon.png`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `favicon-32.png` — 아이콘
+   - `README.md` (선택)
 2. 저장소 **Settings → Pages** → Source: `Deploy from a branch`, Branch: `main` / `root` → Save.
 3. 1~2분 뒤 `https://아이디.github.io/저장소이름/` 주소가 열립니다.
+
+### 홈 화면에 추가하기
+- **아이폰** — 사파리로 사이트를 열고 공유 버튼 → *홈 화면에 추가*. 검은 바탕에 흰 스파클과 파란 점이 있는 아이콘으로 추가되고, 브라우저 주소창 없이 앱처럼 열립니다.
+- **안드로이드** — 크롬 메뉴 → *앱 설치* 또는 *홈 화면에 추가*.
+- 아이콘을 바꾸면 이미 추가해 둔 것은 그대로 남습니다. 홈 화면에서 지웠다가 다시 추가해 주세요.
 
 ### 아이디/비번 화면을 바로 띄우려면
 `index.html` 위쪽 `CONFIG` 부분을 수정해 커밋하세요. 그러면 어느 기기에서 열어도 곧장 로그인 화면이 나옵니다.

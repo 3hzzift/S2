@@ -1,0 +1,17 @@
+{
+  "name": "Personal Archive",
+  "short_name": "ARCHIVE",
+  "description": "자작 캐릭터 페어 디데이 · 커미션 갤러리 · 로그 아카이브",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#E9E9E7",
+  "theme_color": "#E9E9E7",
+  "lang": "ko",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
