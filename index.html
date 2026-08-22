@@ -253,6 +253,36 @@ img{max-width:100%;}
   text-transform:uppercase; color:var(--g1); border-bottom:1px solid var(--line); padding-bottom:8px;}
 .read-body{font-size:15px; margin:14px 0; max-width:62ch;}
 
+/* 마크다운 본문 */
+.md{line-height:1.8; word-break:break-word;}
+.md > *:first-child{margin-top:0;}
+.md > *:last-child{margin-bottom:0;}
+.md p{margin:0 0 1em;}
+.md h2,.md h3,.md h4,.md h5{letter-spacing:-.02em; line-height:1.25; margin:1.6em 0 .5em; font-weight:700;}
+.md h2{font-size:1.5em; border-bottom:1px solid var(--line); padding-bottom:.25em;}
+.md h3{font-size:1.24em;}
+.md h4{font-size:1.08em;}
+.md h5{font-size:1em; font-family:var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--g1);}
+.md ul,.md ol{margin:0 0 1em; padding-left:1.4em;}
+.md li{margin:.25em 0;}
+.md ul{list-style:none; padding-left:1.1em;}
+.md ul li{position:relative;}
+.md ul li::before{content:""; position:absolute; left:-1.1em; top:.72em; width:5px; height:5px; background:var(--accent);}
+.md ol li::marker{font-family:var(--mono); font-size:.85em; color:var(--g1);}
+.md blockquote{margin:0 0 1em; padding:.1em 0 .1em 1em; border-left:2px solid var(--accent); color:var(--g1);}
+.md hr{border:none; border-top:1px solid var(--line); margin:1.8em 0;}
+.md a{color:var(--accent); text-underline-offset:2px;}
+.md code{font-family:var(--mono); font-size:.86em; background:var(--g3); padding:1px 4px;}
+.md pre{background:var(--ink); color:var(--paper); padding:12px; overflow-x:auto; margin:0 0 1em;}
+.md pre code{background:none; color:inherit; padding:0; font-size:12px; line-height:1.6;}
+.md img{display:block; border:1px solid var(--line); margin:0 0 1em;}
+.md strong{font-weight:700;}
+.md del{color:var(--g1);}
+.mdhint{font-family:var(--mono); font-size:9.5px; line-height:1.9; letter-spacing:.04em; color:var(--g1); margin:6px 0 0;}
+.mdhint b{font-weight:400; color:var(--ink);}
+.mdprev{border:1px solid var(--line); padding:14px; min-height:240px; max-height:52vh; overflow-y:auto; font-size:15px;}
+.mdprev.empty-prev{color:var(--g1); font-size:12.5px; display:flex; align-items:center; justify-content:center;}
+
 /* ── settings ── */
 .sws{display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px;}
 .sw{border:1px solid var(--g2); background:var(--pane); padding:6px; cursor:pointer; display:flex; flex-direction:column; gap:5px;}
@@ -315,10 +345,12 @@ code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 
   .log{grid-template-columns:24px 1fr; padding:12px;}
   .log-side{grid-column:2; text-align:left; display:flex; gap:12px; margin-top:5px;}
   .log-pair{margin-top:0;}
-  .scrim{padding:0; align-items:stretch;}
-  .modal{max-width:none; border:none; border-top:1px solid var(--line); min-height:100dvh; margin:0;}
-  .modal .bar{position:sticky; top:0; background:var(--pane); z-index:2; min-height:var(--tap);}
-  .modal-body{max-height:none; padding:14px 14px calc(24px + env(safe-area-inset-bottom));}
+  .scrim{padding:0; display:block; overflow:hidden; overscroll-behavior:none;}
+  .modal{position:absolute; inset:0; width:auto; max-width:none; margin:0; border:none;
+    border-top:1px solid var(--line); display:flex; flex-direction:column;}
+  .modal .bar{position:static; flex:0 0 auto; min-height:var(--tap); background:var(--pane);}
+  .modal-body{flex:1 1 auto; min-height:0; max-height:none; overflow-y:auto; overscroll-behavior:contain;
+    padding:14px 14px calc(24px + env(safe-area-inset-bottom));}
   .foot{position:sticky; bottom:0; background:var(--pane); padding:10px 0 0; border-top:1px solid var(--g3); margin-top:8px;}
   .foot .btn{flex:1; min-height:var(--tap);}
   .btn,.sel,.search{min-height:var(--tap);}
@@ -503,8 +535,16 @@ function Modal({ title, idx="—", onClose, children, wide }){
   useEffect(()=>{
     const h=e=>e.key==="Escape"&&onClose();
     window.addEventListener("keydown",h);
-    document.body.style.overflow="hidden";
-    return ()=>{ window.removeEventListener("keydown",h); document.body.style.overflow=""; };
+    const b=document.body, y=window.scrollY;
+    const prev={position:b.style.position, top:b.style.top, left:b.style.left,
+      right:b.style.right, width:b.style.width, overflow:b.style.overflow};
+    b.style.position="fixed"; b.style.top=`-${y}px`; b.style.left="0";
+    b.style.right="0"; b.style.width="100%"; b.style.overflow="hidden";
+    return ()=>{
+      window.removeEventListener("keydown",h);
+      Object.assign(b.style, prev);
+      window.scrollTo(0,y);
+    };
   },[onClose]);
   return (
     <div className="scrim" onMouseDown={e=>e.target===e.currentTarget&&onClose()}>
@@ -518,6 +558,75 @@ function Modal({ title, idx="—", onClose, children, wide }){
     </div>
   );
 }
+/* ═══════════════════════════════════════════════════════════
+   MARKDOWN — 외부 라이브러리 없이 직접 변환 (입력은 먼저 이스케이프)
+   ═══════════════════════════════════════════════════════════ */
+const escHtml = s => String(s)
+  .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const safeUrl = u => /^(https?:\/\/|mailto:|#|\/)/i.test(String(u).trim()) ? String(u).trim() : "#";
+
+function mdInline(raw){
+  let s = escHtml(raw);
+  const codes = [];
+  s = s.replace(/`([^`]+)`/g, (m,c)=>{ codes.push(c); return `\u0000${codes.length-1}\u0000`; });
+  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (m,a,u)=>`<img src="${safeUrl(u)}" alt="${a}">`);
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,
+    (m,t,u)=>`<a href="${safeUrl(u)}" target="_blank" rel="noopener noreferrer">${t}</a>`);
+  s = s.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")
+       .replace(/__([^_]+)__/g,"<strong>$1</strong>")
+       .replace(/(^|[^*])\*([^*\n]+)\*/g,"$1<em>$2</em>")
+       .replace(/~~([^~]+)~~/g,"<del>$1</del>");
+  s = s.replace(/\u0000(\d+)\u0000/g, (m,i)=>`<code>${escHtml(codes[i])}</code>`);
+  return s;
+}
+
+function mdToHtml(src){
+  const lines = String(src||"").replace(/\r\n?/g,"\n").split("\n");
+  const out = []; let para = [], list = null, i = 0;
+  const flushP = ()=>{ if(para.length){ out.push(`<p>${para.map(mdInline).join("<br>")}</p>`); para=[]; } };
+  const flushL = ()=>{ if(list){ out.push(`<${list.t}>${list.items.map(x=>`<li>${mdInline(x)}</li>`).join("")}</${list.t}>`); list=null; } };
+
+  while (i < lines.length){
+    const ln = lines[i];
+    if (/^```/.test(ln)){
+      flushP(); flushL(); const buf=[]; i++;
+      while (i<lines.length && !/^```/.test(lines[i])) buf.push(lines[i++]);
+      i++; out.push(`<pre><code>${escHtml(buf.join("\n"))}</code></pre>`); continue;
+    }
+    if (/^\s*$/.test(ln)){ flushP(); flushL(); i++; continue; }
+    if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(ln)){ flushP(); flushL(); out.push("<hr>"); i++; continue; }
+    const h = ln.match(/^(#{1,4})\s+(.*)$/);
+    if (h){ flushP(); flushL(); const lv = Math.min(h[1].length+1, 5);
+      out.push(`<h${lv}>${mdInline(h[2])}</h${lv}>`); i++; continue; }
+    if (/^>\s?/.test(ln)){
+      flushP(); flushL(); const buf=[];
+      while (i<lines.length && /^>\s?/.test(lines[i])) buf.push(lines[i++].replace(/^>\s?/,""));
+      out.push(`<blockquote>${buf.map(mdInline).join("<br>")}</blockquote>`); continue;
+    }
+    const ul = ln.match(/^\s*[-*+]\s+(.*)$/);
+    const ol = ln.match(/^\s*\d+[.)]\s+(.*)$/);
+    if (ul || ol){
+      flushP(); const t = ul ? "ul" : "ol";
+      if (!list || list.t !== t){ flushL(); list = { t, items:[] }; }
+      list.items.push((ul||ol)[1]); i++; continue;
+    }
+    flushL(); para.push(ln); i++;
+  }
+  flushP(); flushL();
+  return out.join("");
+}
+
+const stripMd = s => String(s||"")
+  .replace(/```[\s\S]*?```/g," ")
+  .replace(/!\[[^\]]*\]\([^)]*\)/g," ")
+  .replace(/\[([^\]]+)\]\([^)]*\)/g,"$1")
+  .replace(/^\s*[#>\-*+]+\s*/gm,"")
+  .replace(/[*_`~]/g,"")
+  .replace(/\s+/g," ").trim();
+
+const Md = ({ text, className }) =>
+  <div className={`md ${className||""}`} dangerouslySetInnerHTML={{__html: mdToHtml(text)}}/>;
+
 const Empty = ({line, action}) => (
   <div className="empty"><Star/><p>{line}</p>{action}</div>
 );
@@ -1168,7 +1277,7 @@ function LogsView({ logs, setLogs, pairs }){
                   <span className="log-n">{pad(list.length-i)}</span>
                   <span>
                     <span className="log-t">{l.title||"무제"}</span>
-                    <span className="log-ex">{(l.body||"").slice(0,90)}</span>
+                    <span className="log-ex">{stripMd(l.body).slice(0,90)}</span>
                   </span>
                   <span className="log-side">
                     <span>{fmtDate(l.date)}</span>
@@ -1196,7 +1305,7 @@ function LogsView({ logs, setLogs, pairs }){
             <span>{(()=>{const p=pairs.find(x=>x.id===open.pairId); return p?`${p.nameA} × ${p.nameB}`:"페어 없음";})()}</span>
             <span>{(open.tags||[]).map(t=>`#${t}`).join(" ")}</span>
           </div>
-          <div className="pre read-body">{open.body}</div>
+          <Md text={open.body} className="read-body"/>
           <div className="foot">
             <Btn onClick={()=>{ setEditing(open); setOpen(null); }}>수정</Btn>
             <Btn variant="danger" onClick={()=>{ if(confirm("이 글을 삭제할까요?")){ setLogs(l=>l.filter(x=>x.id!==open.id)); setOpen(null);} }}>삭제</Btn>
@@ -1210,6 +1319,7 @@ function LogsView({ logs, setLogs, pairs }){
 function LogForm({ initial, pairs, onCancel, onSubmit }){
   const [f,setF] = useState({ id:initial.id, title:initial.title||"", body:initial.body||"",
     date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "), createdAt:initial.createdAt });
+  const [tab,setTab] = useState("write");
   const set = k => e => setF({...f,[k]:e.target.value});
   return (
     <Modal idx={initial.id?"03·EDIT":"03·NEW"} title={initial.id?"글 수정":"새 글"} onClose={onCancel} wide>
@@ -1224,7 +1334,25 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
             </select>
           </Field>
         </div>
-        <Field label="본문"><textarea className="in ta lg" rows={14} value={f.body} onChange={set("body")}/></Field>
+        <div className="field">
+          <span className="lab">본문<em>마크다운 사용 가능</em></span>
+          <div className="seg">
+            <button className={tab==="write"?"on":""} onClick={()=>setTab("write")}>쓰기</button>
+            <button className={tab==="prev"?"on":""} onClick={()=>setTab("prev")}>미리보기</button>
+          </div>
+          {tab==="write" ? (<>
+            <textarea className="in ta lg" rows={14} value={f.body} onChange={set("body")}
+              placeholder={"# 제목\n\n**굵게**, *기울임*, ~~취소선~~\n\n> 인용문\n- 목록\n\n[링크](https://example.com)"}/>
+            <p className="mdhint">
+              <b># 제목</b> · <b>**굵게**</b> · <b>*기울임*</b> · <b>~~취소선~~</b> · <b>&gt; 인용</b> ·
+              <b> - 목록</b> · <b>1. 번호</b> · <b>[글자](주소)</b> · <b>![](이미지주소)</b> · <b>---</b> 구분선
+            </p>
+          </>) : (
+            f.body.trim()
+              ? <div className="mdprev"><Md text={f.body}/></div>
+              : <div className="mdprev empty-prev">아직 쓴 내용이 없습니다.</div>
+          )}
+        </div>
         <Field label="태그" hint="쉼표로 구분"><input className="in" value={f.tags} onChange={set("tags")} placeholder="일상, 설정, 대화"/></Field>
         <div className="foot">
           <Btn onClick={onCancel}>취소</Btn>
