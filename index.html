@@ -178,12 +178,14 @@ img{max-width:100%;}
 .logs{list-style:none; margin:0; padding:0;}
 .logs li + li{border-top:1px solid var(--g3);}
 .log{width:100%; background:var(--pane); border:none; cursor:pointer; text-align:left;
-  display:grid; grid-template-columns:34px 1fr auto; gap:12px; align-items:baseline; padding:14px;}
+  display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:12px; align-items:baseline; padding:14px;}
 .log:hover{background:#fafafa;}
 .log:hover .log-t{color:var(--accent);}
 .log-n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em;}
-.log-t{display:block; font-size:14.5px; font-weight:700; letter-spacing:-.015em;}
-.log-ex{display:block; font-size:12px; color:var(--g1); margin-top:3px; overflow:hidden;
+.log-main{min-width:0; overflow:hidden;}
+.log-t{display:block; font-size:14px; font-weight:700; letter-spacing:-.015em;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.log-ex{display:block; font-size:11.5px; color:var(--g1); margin-top:3px; overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap;}
 .log-side{text-align:right; font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--g1); white-space:nowrap;}
 .log-pair{display:block; color:var(--accent); margin-top:3px;}
@@ -204,10 +206,13 @@ img{max-width:100%;}
 /* ── forms ── */
 .form{display:flex; flex-direction:column; gap:12px;}
 .f2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
-.field{display:flex; flex-direction:column; gap:5px;}
+.f2 > *{min-width:0;}
+.field{display:flex; flex-direction:column; gap:5px; min-width:0;}
 .lab{font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; display:flex; gap:6px; align-items:baseline;}
 .lab em{font-style:normal; color:var(--g2); letter-spacing:.1em;}
-.in{border:1px solid var(--line); background:var(--pane); padding:10px; font-size:16px; color:var(--ink); width:100%;}
+.in{border:1px solid var(--line); background:var(--pane); padding:10px; font-size:16px; color:var(--ink);
+  width:100%; min-width:0; max-width:100%;}
+input[type="date"].in{-webkit-appearance:none; appearance:none; text-align:left; height:44px;}
 .in.lg{font-size:18px; font-weight:700;}
 .in:focus{outline:2px solid var(--accent); outline-offset:-1px;}
 .ta{resize:vertical; line-height:1.65; font-size:15px;}
@@ -260,7 +265,7 @@ img{max-width:100%;}
 .pre{white-space:pre-wrap; line-height:1.8; word-break:break-word;}
 .read-meta{display:flex; gap:16px; flex-wrap:wrap; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
   text-transform:uppercase; color:var(--g1); border-bottom:1px solid var(--line); padding-bottom:8px;}
-.read-body{font-size:15px; margin:14px 0; max-width:62ch;}
+.read-body{font-size:14px; margin:14px 0; max-width:62ch;}
 
 /* 마크다운 본문 */
 .md{line-height:1.8; word-break:break-word;}
@@ -289,8 +294,20 @@ img{max-width:100%;}
 .md del{color:var(--g1);}
 .mdhint{font-family:var(--mono); font-size:9.5px; line-height:1.9; letter-spacing:.04em; color:var(--g1); margin:6px 0 0;}
 .mdhint b{font-weight:400; color:var(--ink);}
-.mdprev{border:1px solid var(--line); padding:14px; min-height:240px; max-height:52vh; overflow-y:auto; font-size:15px;}
+.mdprev{border:1px solid var(--line); padding:14px; min-height:240px; max-height:52vh; overflow-y:auto;}
 .mdprev.empty-prev{color:var(--g1); font-size:12.5px; display:flex; align-items:center; justify-content:center;}
+.editbar{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap;}
+.editbar .seg{flex:1 1 200px;}
+.sizer{display:flex; align-items:center; gap:2px; border:1px solid var(--line); padding:0 6px 0 8px;
+  font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--g1);}
+.sizer-lab{margin-right:4px; white-space:nowrap;}
+.sizer button{width:28px; height:32px; border:none; background:none; cursor:pointer; font-size:15px;
+  line-height:1; color:var(--ink); padding:0;}
+.sizer button:hover:not([disabled]){color:var(--accent);}
+.sizer button[disabled]{opacity:.3; cursor:default;}
+.sizer b{min-width:22px; text-align:center; font-family:var(--mono); font-size:11px; color:var(--ink);}
+.sizer-reset{width:auto !important; font-family:var(--mono); font-size:9px !important; letter-spacing:.1em;
+  padding:0 6px !important; border-left:1px solid var(--g3) !important; color:var(--g1) !important; margin-left:4px;}
 
 /* ── settings ── */
 .sws{display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px;}
@@ -359,10 +376,17 @@ code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 
     border-top:1px solid var(--line); display:flex; flex-direction:column;}
   .modal .bar{position:static; flex:0 0 auto; min-height:var(--tap); background:var(--pane);}
   .modal-body{flex:1 1 auto; min-height:0; max-height:none; overflow-y:auto; overscroll-behavior:contain;
-    padding:14px 14px calc(24px + env(safe-area-inset-bottom));}
-  .foot{position:sticky; bottom:0; background:var(--pane); padding:10px 0 0; border-top:1px solid var(--g3); margin-top:8px;}
-  .foot .btn{flex:1; min-height:var(--tap);}
+    padding:14px 14px calc(84px + env(safe-area-inset-bottom));}
+  .modal .foot{position:fixed; left:0; right:0; bottom:0; z-index:5; margin:0;
+    background:var(--pane); border-top:1px solid var(--line);
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));}
+  .modal .foot .btn{flex:1; min-height:var(--tap);}
+  .foot .btn{min-height:var(--tap);}
   .btn,.sel,.search{min-height:var(--tap);}
+  .ta{font-size:16px;}
+  .ta.lg{font-size:16px !important;}
+  .editbar .seg{flex:1 1 100%;}
+  .sizer{flex:1 1 100%; justify-content:space-between; min-height:var(--tap);}
   .view-img img{max-height:44vh;}
   .status{margin-top:14px; padding-bottom:calc(9px + env(safe-area-inset-bottom)); gap:10px;}
 }
@@ -633,8 +657,8 @@ const stripMd = s => String(s||"")
   .replace(/[*_`~]/g,"")
   .replace(/\s+/g," ").trim();
 
-const Md = ({ text, className }) =>
-  <div className={`md ${className||""}`} dangerouslySetInnerHTML={{__html: mdToHtml(text)}}/>;
+const Md = ({ text, className, style }) =>
+  <div className={`md ${className||""}`} style={style} dangerouslySetInnerHTML={{__html: mdToHtml(text)}}/>;
 
 const Empty = ({line, action}) => (
   <div className="empty"><Star/><p>{line}</p>{action}</div>
@@ -1284,7 +1308,7 @@ function LogsView({ logs, setLogs, pairs }){
               <li key={l.id}>
                 <button className="log" onClick={()=>setOpen(l)}>
                   <span className="log-n">{pad(list.length-i)}</span>
-                  <span>
+                  <span className="log-main">
                     <span className="log-t">{l.title||"무제"}</span>
                     <span className="log-ex">{stripMd(l.body).slice(0,90)}</span>
                   </span>
@@ -1314,7 +1338,7 @@ function LogsView({ logs, setLogs, pairs }){
             <span>{(()=>{const p=pairs.find(x=>x.id===open.pairId); return p?`${p.nameA} × ${p.nameB}`:"페어 없음";})()}</span>
             <span>{(open.tags||[]).map(t=>`#${t}`).join(" ")}</span>
           </div>
-          <Md text={open.body} className="read-body"/>
+          <Md text={open.body} className="read-body" style={{fontSize:(open.fontSize||14)+"px"}}/>
           <div className="foot">
             <Btn onClick={()=>{ setEditing(open); setOpen(null); }}>수정</Btn>
             <Btn variant="danger" onClick={()=>{ if(confirm("이 글을 삭제할까요?")){ setLogs(l=>l.filter(x=>x.id!==open.id)); setOpen(null);} }}>삭제</Btn>
@@ -1327,7 +1351,8 @@ function LogsView({ logs, setLogs, pairs }){
 
 function LogForm({ initial, pairs, onCancel, onSubmit }){
   const [f,setF] = useState({ id:initial.id, title:initial.title||"", body:initial.body||"",
-    date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "), createdAt:initial.createdAt });
+    date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "),
+    fontSize:initial.fontSize||14, createdAt:initial.createdAt });
   const [tab,setTab] = useState("write");
   const set = k => e => setF({...f,[k]:e.target.value});
   return (
@@ -1345,20 +1370,33 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
         </div>
         <div className="field">
           <span className="lab">본문<em>마크다운 사용 가능</em></span>
-          <div className="seg">
-            <button className={tab==="write"?"on":""} onClick={()=>setTab("write")}>쓰기</button>
-            <button className={tab==="prev"?"on":""} onClick={()=>setTab("prev")}>미리보기</button>
+          <div className="editbar">
+            <div className="seg">
+              <button className={tab==="write"?"on":""} onClick={()=>setTab("write")}>쓰기</button>
+              <button className={tab==="prev"?"on":""} onClick={()=>setTab("prev")}>미리보기</button>
+            </div>
+            <div className="sizer">
+              <span className="sizer-lab">글자 크기</span>
+              <button onClick={()=>setF({...f, fontSize:Math.max(11, (f.fontSize||14)-1)})}
+                disabled={(f.fontSize||14)<=11} aria-label="글자 작게">−</button>
+              <b>{f.fontSize||14}</b>
+              <button onClick={()=>setF({...f, fontSize:Math.min(24, (f.fontSize||14)+1)})}
+                disabled={(f.fontSize||14)>=24} aria-label="글자 크게">+</button>
+              {(f.fontSize||14)!==14 ? <button className="sizer-reset" onClick={()=>setF({...f, fontSize:14})}>기본</button> : null}
+            </div>
           </div>
           {tab==="write" ? (<>
             <textarea className="in ta lg" rows={14} value={f.body} onChange={set("body")}
+              style={{fontSize:(f.fontSize||14)+"px"}}
               placeholder={"# 제목\n\n**굵게**, *기울임*, ~~취소선~~\n\n> 인용문\n- 목록\n\n[링크](https://example.com)"}/>
             <p className="mdhint">
+              글자 크기는 미리보기와 저장된 글에 적용됩니다.<br/>
               <b># 제목</b> · <b>**굵게**</b> · <b>*기울임*</b> · <b>~~취소선~~</b> · <b>&gt; 인용</b> ·
               <b> - 목록</b> · <b>1. 번호</b> · <b>[글자](주소)</b> · <b>![](이미지주소)</b> · <b>---</b> 구분선
             </p>
           </>) : (
             f.body.trim()
-              ? <div className="mdprev"><Md text={f.body}/></div>
+              ? <div className="mdprev"><Md text={f.body} style={{fontSize:(f.fontSize||14)+"px"}}/></div>
               : <div className="mdprev empty-prev">아직 쓴 내용이 없습니다.</div>
           )}
         </div>
