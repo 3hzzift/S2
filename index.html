@@ -30,9 +30,17 @@
   --paper:#E9E9E7; --pane:#FFFFFF; --ink:#0B0B0C; --line:#0B0B0C;
   --g1:#6E6E73; --g2:#B7B7BA; --g3:#DEDEDC; --danger:#B3170A;
   --accent:#1F4BFF;
+  --chip-bg:#0B0B0C; --chip-fg:#FFFFFF; --hover:#FAFAFA;
+  color-scheme:light;
   --sans:"Helvetica Neue",Helvetica,Inter,"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Arial,sans-serif;
   --mono:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Menlo,Consolas,monospace;
   --tap:44px;
+}
+html[data-theme="dark"]{
+  --paper:#151517; --pane:#1C1C1F; --ink:#EAEAE8; --line:#3E3E43;
+  --g1:#9B9BA1; --g2:#56565C; --g3:#2A2A2E; --danger:#FF6B5A;
+  --chip-bg:#EAEAE8; --chip-fg:#151517; --hover:#232327;
+  color-scheme:dark;
 }
 *{box-sizing:border-box;}
 html,body{margin:0; padding:0; background:var(--paper); color:var(--ink);}
@@ -42,9 +50,11 @@ button,input,select,textarea{font-family:inherit; border-radius:0;}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 img{max-width:100%;}
 
-.app{min-height:100dvh; padding-left:26px; position:relative;}
+.app{min-height:100dvh; padding-left:26px; position:relative; overflow-x:hidden;}
+button{-webkit-tap-highlight-color:transparent;}
+.pane{overflow:hidden;}
 .edge{position:fixed; left:0; top:0; bottom:0; width:26px; border-right:1px solid var(--line);
-  background:var(--ink); color:var(--paper); overflow:hidden; z-index:5;}
+  background:var(--chip-bg); color:var(--chip-fg); overflow:hidden; z-index:5;}
 .edge span{position:absolute; top:16px; left:50%; transform:translateX(-50%) rotate(90deg);
   transform-origin:top left; white-space:nowrap; font-family:var(--mono); font-size:9px;
   letter-spacing:.22em; text-transform:uppercase;}
@@ -72,7 +82,7 @@ img{max-width:100%;}
   color:var(--ink); white-space:nowrap;}
 .tab .n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em; line-height:1;}
 .tab:hover{background:var(--pane);}
-.tab.on{background:var(--ink); color:#fff;}
+.tab.on{background:var(--chip-bg); color:var(--chip-fg);}
 .tab.on .n{color:var(--accent);}
 .main{border-top:1px solid var(--line);}
 .stack{display:flex; flex-direction:column; gap:18px; padding-top:18px;}
@@ -81,7 +91,7 @@ img{max-width:100%;}
 /* ── window pane ── */
 .pane{background:var(--pane); border:1px solid var(--line);}
 .bar{display:flex; align-items:center; gap:10px; min-height:26px; padding:0 8px; border-bottom:1px solid var(--line);}
-.bar .idx{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:#fff; background:var(--ink); padding:2px 5px;}
+.bar .idx{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--chip-fg); background:var(--chip-bg); padding:2px 5px;}
 .bar .ttl{font-family:var(--mono); font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
   font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .bar .meta{font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--g1);
@@ -143,28 +153,66 @@ img{max-width:100%;}
 
 /* ── gallery ── */
 .thumb{background:var(--pane); border:none; padding:10px; cursor:pointer; text-align:left; display:block; width:100%;}
-.thumb:hover{background:#fafafa;}
+.thumb:hover{background:var(--hover);}
 .frame{display:block; border:1px solid var(--line); aspect-ratio:1/1; overflow:hidden; background:var(--g3);}
 .frame img{width:100%; height:100%; object-fit:cover; display:block;}
 .thumb-meta{display:grid; grid-template-columns:auto 1fr; gap:2px 8px; margin-top:8px; align-items:baseline;}
-.thumb-n{font-family:var(--mono); font-size:9px; color:#fff; background:var(--ink); padding:1px 4px; grid-row:span 2;}
+.thumb-n{font-family:var(--mono); font-size:9px; color:var(--chip-fg); background:var(--chip-bg); padding:1px 4px; grid-row:span 2;}
 .thumb-t{font-size:12px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .thumb-a{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--accent);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .imgph{width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-family:var(--mono);
   font-size:9px; letter-spacing:.2em; color:var(--g1);}
 .frame{position:relative;}
-.cnt{position:absolute; top:0; right:0; background:var(--ink); color:#fff; font-family:var(--mono);
+.cnt{position:absolute; top:0; right:0; background:var(--chip-bg); color:var(--chip-fg); font-family:var(--mono);
   font-size:9px; letter-spacing:.08em; padding:3px 5px; border-left:1px solid var(--line); border-bottom:1px solid var(--line);}
+
+/* ── 다가오는 기념일 ── */
+.soon{list-style:none; margin:0; padding:0;}
+.soon li{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:12px; align-items:center;
+  padding:11px 14px; border-top:1px solid var(--g3);}
+.soon li:first-child{border-top:none;}
+.soon-d{font-family:var(--mono); font-size:11px; font-weight:700; color:#fff;
+  background:var(--accent); padding:3px 6px; letter-spacing:.06em;}
+.soon-main{min-width:0; display:flex; flex-direction:column; gap:2px;}
+.soon-main b{font-size:13.5px; letter-spacing:-.01em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.soon-main span{font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--g1); text-transform:uppercase;}
+.soon-date{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--g1); white-space:nowrap;}
+
+/* ── 태그 칩 ── */
+.chips{display:flex; gap:6px; flex-wrap:wrap; padding:10px 10px 12px; border-bottom:1px solid var(--g3);}
+.chip{border:1px solid var(--g2); background:var(--pane); color:var(--ink); cursor:pointer;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; padding:5px 8px; display:flex; gap:5px; align-items:center;}
+.chip i{font-style:normal; color:var(--g2); font-size:8.5px;}
+.chip:hover{border-color:var(--ink);}
+.chip.on{background:var(--chip-bg); color:var(--chip-fg); border-color:var(--chip-bg);}
+.chip.on i{color:var(--chip-fg); opacity:.6;}
+
+/* ── 임시저장 안내 ── */
+.draftbar{border:1px solid var(--accent); padding:9px 10px; display:flex; gap:10px; align-items:center;
+  justify-content:space-between; flex-wrap:wrap; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.08em; color:var(--g1);}
+.draftbar-act{display:flex; gap:10px;}
+.draftbar button{border:none; background:none; cursor:pointer; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--accent); border-bottom:1px solid var(--accent); padding:2px 0;}
+.draftbar button:last-child{color:var(--g1); border-color:var(--g2);}
+
+/* ── 전체화면 확대 ── */
+.zoom{position:fixed; inset:0; z-index:70; background:rgba(11,11,12,.94); display:flex;
+  align-items:center; justify-content:center; padding:16px; cursor:zoom-out;}
+.zoom img{max-width:100%; max-height:88vh; object-fit:contain;}
+.zoom-hint{position:absolute; left:0; right:0; bottom:calc(14px + env(safe-area-inset-bottom)); text-align:center;
+  font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:rgba(255,255,255,.62); text-transform:uppercase;}
+.savedat{font-family:var(--mono); opacity:.6;}
 
 /* 게시물 보기 — 여러 장 넘겨보기 */
 .stage{position:relative;}
 .nav{position:absolute; top:50%; transform:translateY(-50%); width:34px; height:52px; border:1px solid var(--line);
   background:var(--pane); color:var(--ink); font-size:20px; line-height:1; cursor:pointer; display:flex;
   align-items:center; justify-content:center; padding:0;}
-.nav:hover{background:var(--ink); color:#fff;}
+.nav:hover{background:var(--chip-bg); color:var(--chip-fg);}
 .nav.prev{left:8px;} .nav.next{right:8px;}
-.pageno{position:absolute; left:8px; bottom:8px; background:var(--ink); color:#fff; font-family:var(--mono);
+.pageno{position:absolute; left:8px; bottom:8px; background:var(--chip-bg); color:var(--chip-fg); font-family:var(--mono);
   font-size:9px; letter-spacing:.14em; padding:3px 6px;}
 .strip{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px;}
 .strip::-webkit-scrollbar{height:4px;}
@@ -179,7 +227,7 @@ img{max-width:100%;}
 .logs li + li{border-top:1px solid var(--g3);}
 .log{width:100%; background:var(--pane); border:none; cursor:pointer; text-align:left;
   display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:12px; align-items:baseline; padding:14px;}
-.log:hover{background:#fafafa;}
+.log:hover{background:var(--hover);}
 .log:hover .log-t{color:var(--accent);}
 .log-n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em;}
 .log-main{min-width:0; overflow:hidden;}
@@ -231,7 +279,7 @@ input[type="date"].in{-webkit-appearance:none; appearance:none; text-align:left;
 .prevgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:6px;}
 .prevcell{position:relative; aspect-ratio:1/1; border:1px solid var(--line); background:var(--g3); overflow:hidden;}
 .prevcell img{width:100%; height:100%; object-fit:cover; display:block;}
-.prevn{position:absolute; left:0; bottom:0; background:var(--ink); color:#fff; font-family:var(--mono);
+.prevn{position:absolute; left:0; bottom:0; background:var(--chip-bg); color:var(--chip-fg); font-family:var(--mono);
   font-size:9px; padding:1px 4px; letter-spacing:.08em;}
 .prevx{position:absolute; top:0; right:0; width:22px; height:22px; border:none; border-left:1px solid var(--line);
   border-bottom:1px solid var(--line); background:var(--pane); cursor:pointer; display:flex;
@@ -243,18 +291,19 @@ input[type="date"].in{-webkit-appearance:none; appearance:none; text-align:left;
 .prevmove{position:absolute; right:0; bottom:0; display:flex;}
 .prevmove button{width:20px; height:20px; border:none; border-left:1px solid var(--line); border-top:1px solid var(--line);
   background:var(--pane); cursor:pointer; font-size:12px; line-height:1; padding:0; color:var(--ink);}
-.prevmove button:hover:not([disabled]){background:var(--ink); color:#fff;}
+.prevmove button:hover:not([disabled]){background:var(--chip-bg); color:var(--chip-fg);}
 .prevmove button[disabled]{opacity:.3; cursor:default;}
 .addrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
 .addrow .in{flex:1; min-width:180px;}
 .seg{display:flex;}
 .seg button{flex:1; border:1px solid var(--line); background:var(--pane); padding:10px 8px; font-size:10.5px;
   font-weight:700; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; margin-right:-1px;}
-.seg button.on{background:var(--ink); color:#fff;}
+.seg button.on{background:var(--chip-bg); color:var(--chip-fg);}
 
 /* ── detail ── */
 .view{display:flex; flex-direction:column; gap:14px;}
-.view-img{border:1px solid var(--line); background:var(--g3); padding:8px; text-align:center;}
+.view-img{display:block; width:100%; border:1px solid var(--line); background:var(--g3); padding:8px;
+  text-align:center; cursor:zoom-in;}
 .view-img img{max-height:56vh; display:block; margin:0 auto;}
 .metagrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px;
   background:var(--g3); border:1px solid var(--g3); margin:0;}
@@ -287,7 +336,7 @@ input[type="date"].in{-webkit-appearance:none; appearance:none; text-align:left;
 .md hr{border:none; border-top:1px solid var(--line); margin:1.8em 0;}
 .md a{color:var(--accent); text-underline-offset:2px;}
 .md code{font-family:var(--mono); font-size:.86em; background:var(--g3); padding:1px 4px;}
-.md pre{background:var(--ink); color:var(--paper); padding:12px; overflow-x:auto; margin:0 0 1em;}
+.md pre{background:var(--chip-bg); color:var(--chip-fg); padding:12px; overflow-x:auto; margin:0 0 1em;}
 .md pre code{background:none; color:inherit; padding:0; font-size:12px; line-height:1.6;}
 .md img{display:block; border:1px solid var(--line); margin:0 0 1em;}
 .md strong{font-weight:700;}
@@ -324,7 +373,7 @@ code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 
 
 /* ── status ── */
 .status{display:flex; gap:14px; align-items:center; border:1px solid var(--line); border-bottom:none;
-  background:var(--ink); color:var(--paper); padding:9px 10px; margin-top:18px; font-family:var(--mono);
+  background:var(--chip-bg); color:var(--chip-fg); padding:9px 10px; margin-top:18px; font-family:var(--mono);
   font-size:9px; letter-spacing:.16em; text-transform:uppercase; flex-wrap:wrap;
   position:sticky; bottom:0; z-index:4;}
 .status .sp{flex:1;}
@@ -380,7 +429,7 @@ code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 
   .modal .foot{position:fixed; left:0; right:0; bottom:0; z-index:5; margin:0;
     background:var(--pane); border-top:1px solid var(--line);
     padding:10px 14px calc(10px + env(safe-area-inset-bottom));}
-  .modal .foot .btn{flex:1; min-height:var(--tap);}
+  .modal .foot .btn{flex:1; min-height:var(--tap); padding:0 8px; font-size:10px; letter-spacing:.06em;}
   .foot .btn{min-height:var(--tap);}
   .btn,.sel,.search{min-height:var(--tap);}
   .ta{font-size:16px;}
@@ -388,7 +437,71 @@ code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 
   .editbar .seg{flex:1 1 100%;}
   .sizer{flex:1 1 100%; justify-content:space-between; min-height:var(--tap);}
   .view-img img{max-height:44vh;}
-  .status{margin-top:14px; padding-bottom:calc(9px + env(safe-area-inset-bottom)); gap:10px;}
+  .status{margin-top:14px; padding-bottom:calc(9px + env(safe-area-inset-bottom)); gap:8px;
+    font-size:8.5px; letter-spacing:.12em;}
+
+  /* 다가오는 기념일 — 날짜를 아랫줄로 */
+  .soon li{grid-template-columns:auto minmax(0,1fr); gap:6px 10px; padding:10px 12px;}
+  .soon-date{grid-column:2; grid-row:2;}
+  .soon-main{gap:1px;}
+
+  /* 태그 칩 — 한 줄로 가로 스크롤 */
+  .chips{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding:9px 12px 10px;
+    margin:0; -webkit-overflow-scrolling:touch;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto; min-height:32px; padding:0 10px;}
+
+  /* 카드·목록 터치 영역 */
+  .card{padding:14px 12px;}
+  .card-foot{gap:18px; padding-top:16px;}
+  .mini{padding:8px 0;}
+  .thumb{padding:8px;}
+  .thumb-t{font-size:11.5px;}
+
+  /* 이미지 뷰어 */
+  .nav{width:38px; height:56px;}
+  .stripcell{flex:0 0 54px; height:54px;}
+  .zoom{padding:8px;}
+  .zoom img{max-height:calc(100dvh - 96px);}
+
+  /* 폼 요소 */
+  .draftbar{font-size:9px; gap:8px;}
+  .addrow{gap:6px;}
+  .addrow .in{flex:1 1 100%;}
+  .addrow .btn,.addrow .filebtn{flex:1 1 45%;}
+  .prevgrid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px;}
+  .prevx{width:28px; height:28px;}
+  .prevmove button{width:26px; height:26px;}
+  .sizer button{width:44px;}
+  .seg button{min-height:var(--tap);}
+  .ta.lg{min-height:46vh;}
+  .mdprev{min-height:200px; max-height:none;}
+  .metagrid{grid-template-columns:1fr 1fr;}
+  .read-meta{gap:8px 14px; font-size:9px;}
+  .read-body{margin:12px 0;}
+
+  /* 설정 */
+  .sws{grid-template-columns:repeat(auto-fill,minmax(78px,1fr));}
+  .color{height:var(--tap);}
+}
+
+/* 아주 좁은 화면 */
+@media (max-width:380px){
+  .shell{padding:12px 10px 0;}
+  .tab{font-size:9px; gap:4px; padding:0 4px;}
+  .tab .n{display:none;}
+  .grid-gal{grid-template-columns:1fr;}
+  .metagrid{grid-template-columns:1fr;}
+  .bar .meta{display:none;}
+  .status span:nth-child(2){display:none;}
+}
+
+/* 가로로 눕혔을 때 */
+@media (max-width:900px) and (orientation:landscape){
+  .view-img img{max-height:62vh;}
+  .zoom img{max-height:calc(100dvh - 60px);}
+  .ta.lg{min-height:38vh;}
+  .grid-gal{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important;}}
 </style>
@@ -809,10 +922,31 @@ function App(){
   useEffect(()=>{ document.documentElement.style.setProperty("--accent",
     (data && data.settings && data.settings.accent) || "#1F4BFF"); },[data]);
 
+  /* 테마: light | dark | auto */
+  const theme = (data && data.settings && data.settings.theme) || "auto";
+  useEffect(()=>{
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      const dark = theme==="dark" || (theme==="auto" && mq.matches);
+      document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute("content", dark ? "#151517" : "#E9E9E7");
+    };
+    apply();
+    if (mq.addEventListener) mq.addEventListener("change", apply);
+    return ()=>{ if (mq.removeEventListener) mq.removeEventListener("change", apply); };
+  },[theme]);
+
+  const [savedAt, setSavedAt] = useState(null);
+
   const flush = useCallback(async ()=>{
     if (!store || !latest.current) return;
     setStatus("SAVING");
-    try{ await store.save(latest.current); setStatus("SAVED"); setTimeout(()=>setStatus("READY"),1400); }
+    try{
+      await store.save(latest.current);
+      setSavedAt(new Date()); setStatus("SAVED");
+      setTimeout(()=>setStatus("READY"),1400);
+    }
     catch(e){ setStatus("SAVE FAILED"); }
   },[store]);
 
@@ -884,6 +1018,7 @@ function App(){
           <span>IMAGES {pad(data.gallery.length)}</span>
           <span>LOGS {pad(data.logs.length)}</span>
           <span className="sp"/>
+          {savedAt ? <span className="savedat">{pad(savedAt.getHours())}:{pad(savedAt.getMinutes())} 저장됨</span> : null}
           <span className={`state ${status==="SAVE FAILED"?"err":status!=="READY"?"live":""}`}>{status}</span>
         </footer>
       </div>
@@ -897,7 +1032,32 @@ function PairsView({ pairs, setPairs }){
   const sorted = useMemo(()=>[...pairs].sort((a,b)=>
     (!!b.pinned!==!!a.pinned) ? (b.pinned?1:-1) : (a.startDate<b.startDate?-1:1)),[pairs]);
 
+  /* 30일 안에 오는 기념일 */
+  const soon = useMemo(()=>pairs.map(p=>{
+    const count = countFrom(p.startDate);
+    const { next } = nextMilestone(p.startDate, count);
+    if (!next) return null;
+    const left = next.count - count;
+    return left<=30 ? { p, label:next.label, left, on:addDaysISO(p.startDate, next.count-1) } : null;
+  }).filter(Boolean).sort((a,b)=>a.left-b.left),[pairs]);
+
   return (<>
+    {soon.length ? (
+      <Pane idx="00" title="UPCOMING / 다가오는 기념일" meta={`${pad(soon.length)}`} pad={false}>
+        <ul className="soon">
+          {soon.map(s=>(
+            <li key={s.p.id}>
+              <span className="soon-d">{s.left===0 ? "TODAY" : `D-${s.left}`}</span>
+              <span className="soon-main">
+                <b>{s.p.nameA} × {s.p.nameB}</b>
+                <span>{s.label}</span>
+              </span>
+              <span className="soon-date">{fmtDate(s.on)}</span>
+            </li>
+          ))}
+        </ul>
+      </Pane>
+    ) : null}
     <Pane idx="01" title="D-DAY / 페어 기록" meta={`${pad(pairs.length)} PAIRS`} pad={false}
       actions={<Btn variant="solid" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}>
       {pairs.length===0 ? (
@@ -997,12 +1157,16 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
   const [view, setView] = useState(null);
   const [fPair, setFPair] = useState("");
   const [fTag, setFTag] = useState("");
+  const [sort, setSort] = useState("new");
 
   const tags = useMemo(()=>{ const s=new Set(); gallery.forEach(g=>(g.tags||[]).forEach(t=>s.add(t))); return [...s].sort(); },[gallery]);
-  const list = useMemo(()=>gallery
-    .filter(g=>fPair?g.pairId===fPair:true)
-    .filter(g=>fTag?(g.tags||[]).includes(fTag):true)
-    .sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0)),[gallery,fPair,fTag]);
+  const list = useMemo(()=>{
+    const arr = gallery
+      .filter(g=>fPair?g.pairId===fPair:true)
+      .filter(g=>fTag?(g.tags||[]).includes(fTag):true);
+    const byDate = (a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0);
+    return arr.sort(sort==="old" ? (a,b)=>-byDate(a,b) : byDate);
+  },[gallery,fPair,fTag,sort]);
 
   const totalImages = useMemo(()=>gallery.reduce((n,g)=>n+imagesOf(g).length,0),[gallery]);
 
@@ -1064,6 +1228,10 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
           <option value="">모든 태그</option>
           {tags.map(t=><option key={t} value={t}>#{t}</option>)}
         </select>
+        <select className="sel" value={sort} onChange={e=>setSort(e.target.value)}>
+          <option value="new">최신순</option>
+          <option value="old">오래된순</option>
+        </select>
       </>}>
       {gallery.length===0 ? (
         <Empty line="받은 커미션을 등록해 두면 작가·날짜·페어별로 다시 찾을 수 있습니다. 한 게시물에 여러 장을 함께 넣을 수 있어요."
@@ -1106,21 +1274,38 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
 function GalleryDetail({ item, pairs, store, onClose, onEdit, onDelete }){
   const imgs = imagesOf(item);
   const [n, setN] = useState(0);
+  const [zoom, setZoom] = useState(false);
   const cur = imgs[Math.min(n, imgs.length-1)] || {};
   const go = d => setN(v => (v + d + imgs.length) % imgs.length);
+  const touch = useRef(null);
 
   useEffect(()=>{
-    if (imgs.length < 2) return;
-    const h = e => { if(e.key==="ArrowRight") go(1); if(e.key==="ArrowLeft") go(-1); };
-    window.addEventListener("keydown", h);
-    return ()=>window.removeEventListener("keydown", h);
-  },[imgs.length]);
+    const h = e => {
+      if (e.key==="Escape" && zoom){ e.stopPropagation(); setZoom(false); return; }
+      if (imgs.length<2) return;
+      if (e.key==="ArrowRight") go(1);
+      if (e.key==="ArrowLeft") go(-1);
+    };
+    window.addEventListener("keydown", h, true);
+    return ()=>window.removeEventListener("keydown", h, true);
+  },[imgs.length, zoom]);
+
+  const onTouchStart = e => { touch.current = { x:e.touches[0].clientX, y:e.touches[0].clientY }; };
+  const onTouchEnd = e => {
+    if (!touch.current || imgs.length<2) return;
+    const dx = e.changedTouches[0].clientX - touch.current.x;
+    const dy = e.changedTouches[0].clientY - touch.current.y;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) go(dx < 0 ? 1 : -1);
+    touch.current = null;
+  };
 
   return (
     <Modal idx="02·VIEW" title={item.title||"UNTITLED"} onClose={onClose} wide>
       <div className="view">
-        <div className="stage">
-          <div className="view-img"><Pic item={cur} store={store} alt={item.title||"작품"}/></div>
+        <div className="stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          <button className="view-img" onClick={()=>setZoom(true)} aria-label="크게 보기">
+            <Pic item={cur} store={store} alt={item.title||"작품"}/>
+          </button>
           {imgs.length>1 ? (<>
             <button className="nav prev" onClick={()=>go(-1)} aria-label="이전 이미지">‹</button>
             <button className="nav next" onClick={()=>go(1)} aria-label="다음 이미지">›</button>
@@ -1152,6 +1337,13 @@ function GalleryDetail({ item, pairs, store, onClose, onEdit, onDelete }){
           <Btn variant="danger" onClick={onDelete}>삭제</Btn>
         </div>
       </div>
+
+      {zoom ? (
+        <div className="zoom" onClick={()=>setZoom(false)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          <Pic item={cur} store={store} alt={item.title||"작품"}/>
+          <span className="zoom-hint">{imgs.length>1 ? `${pad(n+1)} / ${pad(imgs.length)} · 좌우로 넘기기 · ` : ""}화면을 누르면 닫힙니다</span>
+        </div>
+      ) : null}
     </Modal>
   );
 }
@@ -1284,13 +1476,32 @@ function LogsView({ logs, setLogs, pairs }){
   const [open,setOpen] = useState(null);
   const [q,setQ] = useState("");
   const [fPair,setFPair] = useState("");
+  const [fTag,setFTag] = useState("");
+  const [sort,setSort] = useState("new");
+
+  const tags = useMemo(()=>{
+    const c = new Map();
+    logs.forEach(l=>(l.tags||[]).forEach(t=>c.set(t,(c.get(t)||0)+1)));
+    return [...c.entries()].sort((a,b)=>b[1]-a[1] || (a[0]<b[0]?-1:1));
+  },[logs]);
 
   const list = useMemo(()=>{
     const n=q.trim().toLowerCase();
-    return logs.filter(l=>fPair?l.pairId===fPair:true)
-      .filter(l=>n?((l.title||"")+" "+(l.body||"")+" "+(l.tags||[]).join(" ")).toLowerCase().includes(n):true)
-      .sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0));
-  },[logs,q,fPair]);
+    const arr = logs.filter(l=>fPair?l.pairId===fPair:true)
+      .filter(l=>fTag?(l.tags||[]).includes(fTag):true)
+      .filter(l=>n?((l.title||"")+" "+(l.body||"")+" "+(l.tags||[]).join(" ")).toLowerCase().includes(n):true);
+    const byDate = (a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0);
+    const cmp = sort==="old" ? (a,b)=>-byDate(a,b)
+      : sort==="title" ? (a,b)=>(a.title||"").localeCompare(b.title||"","ko")
+      : byDate;
+    return arr.sort((a,b)=> (!!b.pinned!==!!a.pinned) ? (b.pinned?1:-1) : cmp(a,b));
+  },[logs,q,fPair,fTag,sort]);
+
+  const togglePin = (id,e) => {
+    e.stopPropagation();
+    setLogs(l=>l.map(x=>x.id===id?{...x, pinned:!x.pinned}:x));
+    setOpen(o=>o && o.id===id ? {...o, pinned:!o.pinned} : o);
+  };
 
   return (<>
     <Pane idx="03" title="LOGS / 글 아카이브" meta={`${pad(list.length)} / ${pad(logs.length)}`} pad={false}
@@ -1301,7 +1512,22 @@ function LogsView({ logs, setLogs, pairs }){
           <option value="">모든 페어</option>
           {pairs.map(p=><option key={p.id} value={p.id}>{p.nameA} × {p.nameB}</option>)}
         </select>
+        <select className="sel" value={sort} onChange={e=>setSort(e.target.value)}>
+          <option value="new">최신순</option>
+          <option value="old">오래된순</option>
+          <option value="title">제목순</option>
+        </select>
       </>}>
+      {tags.length ? (
+        <div className="chips">
+          <button className={`chip ${fTag===""?"on":""}`} onClick={()=>setFTag("")}>전체</button>
+          {tags.map(([t,n])=>(
+            <button key={t} className={`chip ${fTag===t?"on":""}`} onClick={()=>setFTag(fTag===t?"":t)}>
+              #{t}<i>{n}</i>
+            </button>
+          ))}
+        </div>
+      ) : null}
       {logs.length===0 ? (
         <Empty line="첫 로그를 남겨 보세요. 날짜와 페어를 붙여두면 나중에 흐름을 따라 읽기 좋습니다."
           action={<Btn variant="solid" onClick={()=>setEditing({})}>+ 새 글 쓰기</Btn>}/>
@@ -1314,7 +1540,7 @@ function LogsView({ logs, setLogs, pairs }){
             return (
               <li key={l.id}>
                 <button className="log" onClick={()=>setOpen(l)}>
-                  <span className="log-n">{pad(list.length-i)}</span>
+                  <span className="log-n">{l.pinned ? <Star size={9}/> : pad(list.length-i)}</span>
                   <span className="log-main">
                     <span className="log-t">{l.title||"무제"}</span>
                     <span className="log-ex">{stripMd(l.body).slice(0,90)}</span>
@@ -1343,10 +1569,12 @@ function LogsView({ logs, setLogs, pairs }){
           <div className="read-meta">
             <span>{fmtDate(open.date)}</span>
             <span>{(()=>{const p=pairs.find(x=>x.id===open.pairId); return p?`${p.nameA} × ${p.nameB}`:"페어 없음";})()}</span>
-            <span>{(open.tags||[]).map(t=>`#${t}`).join(" ")}</span>
+            <span>{stripMd(open.body).length.toLocaleString()}자 · 약 {Math.max(1,Math.round(stripMd(open.body).length/500))}분</span>
+            {(open.tags||[]).length ? <span>{open.tags.map(t=>`#${t}`).join(" ")}</span> : null}
           </div>
           <Md text={open.body} className="read-body" style={{fontSize:(open.fontSize||14)+"px"}}/>
           <div className="foot">
+            <Btn onClick={e=>togglePin(open.id,e)}>{open.pinned ? "고정 해제" : "맨 위 고정"}</Btn>
             <Btn onClick={()=>{ setEditing(open); setOpen(null); }}>수정</Btn>
             <Btn variant="danger" onClick={()=>{ if(confirm("이 글을 삭제할까요?")){ setLogs(l=>l.filter(x=>x.id!==open.id)); setOpen(null);} }}>삭제</Btn>
           </div>
@@ -1356,15 +1584,49 @@ function LogsView({ logs, setLogs, pairs }){
   </>);
 }
 
+const DRAFT_KEY = "archive.draft";
+
 function LogForm({ initial, pairs, onCancel, onSubmit }){
   const [f,setF] = useState({ id:initial.id, title:initial.title||"", body:initial.body||"",
     date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "),
-    fontSize:initial.fontSize||14, createdAt:initial.createdAt });
+    fontSize:initial.fontSize||14, pinned:!!initial.pinned, createdAt:initial.createdAt });
   const [tab,setTab] = useState("write");
+  const [draft,setDraft] = useState(null);
   const set = k => e => setF({...f,[k]:e.target.value});
+  const isNew = !initial.id;
+
+  /* 새 글일 때만 임시저장 — 실수로 닫아도 이어서 쓸 수 있게 */
+  useEffect(()=>{
+    if (!isNew) return;
+    try{
+      const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      if (d && (d.title || d.body)) setDraft(d);
+    }catch(e){}
+  },[isNew]);
+  useEffect(()=>{
+    if (!isNew) return;
+    const t = setTimeout(()=>{
+      try{
+        if (f.title || f.body) localStorage.setItem(DRAFT_KEY, JSON.stringify({...f, at:Date.now()}));
+      }catch(e){}
+    }, 700);
+    return ()=>clearTimeout(t);
+  },[f, isNew]);
+
+  const clearDraft = ()=>{ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} };
+  const chars = stripMd(f.body).length;
   return (
     <Modal idx={initial.id?"03·EDIT":"03·NEW"} title={initial.id?"글 수정":"새 글"} onClose={onCancel} wide>
       <div className="form">
+        {draft ? (
+          <div className="draftbar">
+            <span>저장하지 않은 글이 있습니다 · {new Date(draft.at||Date.now()).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span>
+            <span className="draftbar-act">
+              <button onClick={()=>{ const {at, ...rest}=draft; setF({...f, ...rest}); setDraft(null); }}>이어 쓰기</button>
+              <button onClick={()=>{ clearDraft(); setDraft(null); }}>버리기</button>
+            </span>
+          </div>
+        ) : null}
         <Field label="제목"><input className="in lg" value={f.title} onChange={set("title")} placeholder="제목"/></Field>
         <div className="f2">
           <Field label="날짜"><input type="date" className="in" value={f.date} onChange={set("date")}/></Field>
@@ -1397,6 +1659,7 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
               style={{fontSize:(f.fontSize||14)+"px"}}
               placeholder={"# 제목\n\n**굵게**, *기울임*, ~~취소선~~\n\n> 인용문\n- 목록\n\n[링크](https://example.com)"}/>
             <p className="mdhint">
+              <b>{chars.toLocaleString()}자</b> · 약 {Math.max(1,Math.round(chars/500))}분 분량{isNew ? " · 자동 임시저장 중" : ""}<br/>
               글자 크기는 미리보기와 저장된 글에 적용됩니다.<br/>
               <b># 제목</b> · <b>**굵게**</b> · <b>*기울임*</b> · <b>~~취소선~~</b> · <b>&gt; 인용</b> ·
               <b> - 목록</b> · <b>1. 번호</b> · <b>[글자](주소)</b> · <b>![](이미지주소)</b> · <b>---</b> 구분선
@@ -1408,10 +1671,13 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
           )}
         </div>
         <Field label="태그" hint="쉼표로 구분"><input className="in" value={f.tags} onChange={set("tags")} placeholder="일상, 설정, 대화"/></Field>
+        <label className="check"><input type="checkbox" checked={f.pinned}
+          onChange={e=>setF({...f,pinned:e.target.checked})}/><span>목록 맨 위에 고정</span></label>
         <div className="foot">
-          <Btn onClick={onCancel}>취소</Btn>
+          <Btn onClick={()=>{ if(isNew && (f.title||f.body) && !confirm("쓰던 내용은 임시저장되어 다음에 이어 쓸 수 있습니다. 닫을까요?")) return; onCancel(); }}>취소</Btn>
           <Btn variant="solid" onClick={()=>{
             if(!f.title.trim() && !f.body.trim()) return alert("제목이나 본문 중 하나는 채워 주세요.");
+            clearDraft();
             onSubmit({...f, tags:f.tags.split(",").map(t=>t.trim()).filter(Boolean)});
           }}>{initial.id?"변경 저장":"글 저장"}</Btn>
         </div>
@@ -1448,7 +1714,16 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
 
   return (
     <div className="stack">
-      <Pane idx="04" title="ACCENT / 포인트 컬러">
+      <Pane idx="04" title="THEME / 화면 모드">
+        <div className="seg">
+          {[["light","라이트"],["dark","다크"],["auto","기기 설정"]].map(([v,label])=>(
+            <button key={v} className={(d.theme||"auto")===v?"on":""} onClick={()=>setSettings({theme:v})}>{label}</button>
+          ))}
+        </div>
+        <p className="note">기기 설정을 고르면 휴대폰이 야간 모드로 바뀔 때 함께 어두워집니다.</p>
+      </Pane>
+
+      <Pane idx="05" title="ACCENT / 포인트 컬러">
         <div className="sws">
           {PRESETS.map(([name,hex])=>(
             <button key={hex} className={`sw ${(d.accent||"").toUpperCase()===hex?"on":""}`}
@@ -1469,7 +1744,7 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
         <p className="note">고른 색은 즉시 전체 화면에 적용되고 계정에 저장됩니다.</p>
       </Pane>
 
-      <Pane idx="05" title="ARCHIVE / 이름">
+      <Pane idx="06" title="ARCHIVE / 이름">
         <div className="f2">
           <Field label="아카이브 제목">
             <input className="in" value={d.title} onChange={e=>setD({...d,title:e.target.value})}
@@ -1482,7 +1757,7 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
         </div>
       </Pane>
 
-      <Pane idx="06" title="ACCOUNT / 계정과 저장">
+      <Pane idx="07" title="ACCOUNT / 계정과 저장">
         <p className="note" style={{marginTop:0}}>
           {store.mode==="cloud"
             ? `${store.label} 계정으로 로그인되어 있습니다. 기록과 이미지는 계정에 저장되므로 다른 기기·브라우저에서 같은 아이디로 로그인하면 그대로 이어집니다.`
