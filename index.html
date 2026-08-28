@@ -341,6 +341,22 @@ input[type="date"].in{-webkit-appearance:none; appearance:none; text-align:left;
 .md img{display:block; border:1px solid var(--line); margin:0 0 1em;}
 .md strong{font-weight:700;}
 .md del{color:var(--g1);}
+/* ── HTML 백업 본문 ── */
+.htmlbody{line-height:1.8; word-break:break-word; overflow-wrap:anywhere;}
+.htmlbody > *:first-child{margin-top:0;}
+.htmlbody > *:last-child{margin-bottom:0;}
+.htmlbody img{max-width:100%; height:auto;}
+.htmlbody table{border-collapse:collapse; width:100%; display:block; overflow-x:auto;}
+.htmlbody th,.htmlbody td{border:1px solid var(--g2); padding:6px 8px; font-size:.92em;}
+.htmlbody pre{background:var(--g3); padding:12px; overflow-x:auto; font-family:var(--mono); font-size:.86em;}
+.htmlbody a{color:var(--accent);}
+.htmlbody blockquote{margin:0 0 1em; padding:.1em 0 .1em 1em; border-left:2px solid var(--accent); color:var(--g1);}
+.htmlbody hr{border:none; border-top:1px solid var(--line); margin:1.6em 0;}
+.htmlbody h1,.htmlbody h2,.htmlbody h3{letter-spacing:-.02em; line-height:1.25;}
+.htmlbody *{max-width:100%;}
+.fmtseg{margin-bottom:2px;}
+.codearea{font-family:var(--mono) !important; font-size:12.5px !important; line-height:1.6;
+  white-space:pre; overflow-wrap:normal; overflow-x:auto;}
 .mdhint{font-family:var(--mono); font-size:9.5px; line-height:1.9; letter-spacing:.04em; color:var(--g1); margin:6px 0 0;}
 .mdhint b{font-weight:400; color:var(--ink);}
 .mdprev{border:1px solid var(--line); padding:14px; min-height:240px; max-height:52vh; overflow-y:auto;}
@@ -434,6 +450,16 @@ code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 
   .btn,.sel,.search{min-height:var(--tap);}
   .ta{font-size:16px;}
   .ta.lg{font-size:16px !important;}
+  .codearea{font-size:16px !important; white-space:pre-wrap; overflow-wrap:anywhere; overflow-x:hidden;
+    line-height:1.55; min-height:44vh;}
+  .fmtseg{margin-bottom:6px;}
+
+  /* HTML 백업 본문 */
+  .htmlbody{overflow-wrap:anywhere;}
+  .htmlbody table{-webkit-overflow-scrolling:touch;}
+  .htmlbody th,.htmlbody td{padding:5px 6px; font-size:.86em;}
+  .htmlbody pre{font-size:.8em; padding:10px;}
+  .htmlbody [align="right"],.htmlbody [align="center"]{text-align:inherit;}
   .editbar .seg{flex:1 1 100%;}
   .sizer{flex:1 1 100%; justify-content:space-between; min-height:var(--tap);}
   .view-img img{max-height:44vh;}
@@ -494,6 +520,8 @@ code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 
   .metagrid{grid-template-columns:1fr;}
   .bar .meta{display:none;}
   .status span:nth-child(2){display:none;}
+  .htmlbody th,.htmlbody td{padding:4px 5px; font-size:.8em;}
+  .htmlbody{font-size:.96em;}
 }
 
 /* 가로로 눕혔을 때 */
@@ -779,6 +807,55 @@ const stripMd = s => String(s||"")
 
 const Md = ({ text, className, style }) =>
   <div className={`md ${className||""}`} style={style} dangerouslySetInnerHTML={{__html: mdToHtml(text)}}/>;
+
+/* ── HTML 백업 ── 붙여넣은 코드를 그대로 보관하되, 위험한 태그·속성만 걸러 렌더링 */
+const HTML_DROP = new Set(["script","style","link","meta","base","iframe","frame","frameset","object",
+  "embed","applet","form","input","button","select","textarea","option","svg","math","noscript"]);
+const HTML_KEEP = new Set(["p","br","hr","div","span","h1","h2","h3","h4","h5","h6","ul","ol","li",
+  "blockquote","pre","code","em","strong","i","b","u","s","del","ins","a","img","figure","figcaption",
+  "table","thead","tbody","tfoot","tr","th","td","caption","col","colgroup","dl","dt","dd",
+  "small","sub","sup","mark","abbr","cite","q","center","font","section","article","header","footer","main","aside"]);
+const HTML_ATTR = new Set(["href","src","alt","title","style","colspan","rowspan","width","height",
+  "align","valign","color","size","face","border","cellpadding","cellspacing","target","rel","loading"]);
+
+function sanitizeHtml(raw){
+  try{
+    const doc = new DOMParser().parseFromString(String(raw||""), "text/html");
+    doc.body.querySelectorAll("*").forEach(el=>{
+      const tag = el.tagName.toLowerCase();
+      if (HTML_DROP.has(tag)){ el.remove(); return; }
+      if (!HTML_KEEP.has(tag)){                       // 모르는 태그는 껍데기만 벗기고 내용은 살림
+        const parent = el.parentNode;
+        if (!parent) return;
+        while (el.firstChild) parent.insertBefore(el.firstChild, el);
+        parent.removeChild(el);
+        return;
+      }
+      [...el.attributes].forEach(a=>{
+        const n = a.name.toLowerCase();
+        if (n.startsWith("on") || !HTML_ATTR.has(n)) return el.removeAttribute(a.name);
+        if ((n==="href" || n==="src") && !/^(https?:\/\/|mailto:|data:image\/|#|\/)/i.test(a.value.trim()))
+          return el.removeAttribute(a.name);
+        if (n==="style")
+          el.setAttribute("style", a.value.replace(/(position|z-index)\s*:[^;]*;?/gi,""));
+      });
+      if (tag==="a"){ el.setAttribute("target","_blank"); el.setAttribute("rel","noopener noreferrer"); }
+      if (tag==="img"){ el.setAttribute("loading","lazy"); }
+    });
+    return doc.body.innerHTML;
+  }catch(e){ return escHtml(raw); }
+}
+
+const isHtml = l => !!l && l.format === "html";
+const plainOf = l => isHtml(l)
+  ? String(l.body||"").replace(/<[^>]*>/g," ").replace(/&[a-z]+;/gi," ").replace(/\s+/g," ").trim()
+  : stripMd(l && l.body);
+
+/* 글 본문 — 형식에 맞는 렌더러 선택 */
+const Body = ({ log, className, style }) => isHtml(log)
+  ? <div className={`htmlbody ${className||""}`} style={style}
+      dangerouslySetInnerHTML={{__html: sanitizeHtml(log.body)}}/>
+  : <Md text={log.body} className={className} style={style}/>;
 
 const Empty = ({line, action}) => (
   <div className="empty"><Star/><p>{line}</p>{action}</div>
@@ -1489,7 +1566,7 @@ function LogsView({ logs, setLogs, pairs }){
     const n=q.trim().toLowerCase();
     const arr = logs.filter(l=>fPair?l.pairId===fPair:true)
       .filter(l=>fTag?(l.tags||[]).includes(fTag):true)
-      .filter(l=>n?((l.title||"")+" "+(l.body||"")+" "+(l.tags||[]).join(" ")).toLowerCase().includes(n):true);
+      .filter(l=>n?((l.title||"")+" "+plainOf(l)+" "+(l.tags||[]).join(" ")).toLowerCase().includes(n):true);
     const byDate = (a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0);
     const cmp = sort==="old" ? (a,b)=>-byDate(a,b)
       : sort==="title" ? (a,b)=>(a.title||"").localeCompare(b.title||"","ko")
@@ -1543,7 +1620,7 @@ function LogsView({ logs, setLogs, pairs }){
                   <span className="log-n">{l.pinned ? <Star size={9}/> : pad(list.length-i)}</span>
                   <span className="log-main">
                     <span className="log-t">{l.title||"무제"}</span>
-                    <span className="log-ex">{stripMd(l.body).slice(0,90)}</span>
+                    <span className="log-ex">{plainOf(l).slice(0,90)}</span>
                   </span>
                   <span className="log-side">
                     <span>{fmtDate(l.date)}</span>
@@ -1569,10 +1646,10 @@ function LogsView({ logs, setLogs, pairs }){
           <div className="read-meta">
             <span>{fmtDate(open.date)}</span>
             <span>{(()=>{const p=pairs.find(x=>x.id===open.pairId); return p?`${p.nameA} × ${p.nameB}`:"페어 없음";})()}</span>
-            <span>{stripMd(open.body).length.toLocaleString()}자 · 약 {Math.max(1,Math.round(stripMd(open.body).length/500))}분</span>
+            <span>{isHtml(open)?"HTML · ":""}{plainOf(open).length.toLocaleString()}자 · 약 {Math.max(1,Math.round(plainOf(open).length/500))}분</span>
             {(open.tags||[]).length ? <span>{open.tags.map(t=>`#${t}`).join(" ")}</span> : null}
           </div>
-          <Md text={open.body} className="read-body" style={{fontSize:(open.fontSize||14)+"px"}}/>
+          <Body log={open} className="read-body" style={{fontSize:(open.fontSize||14)+"px"}}/>
           <div className="foot">
             <Btn onClick={e=>togglePin(open.id,e)}>{open.pinned ? "고정 해제" : "맨 위 고정"}</Btn>
             <Btn onClick={()=>{ setEditing(open); setOpen(null); }}>수정</Btn>
@@ -1589,7 +1666,8 @@ const DRAFT_KEY = "archive.draft";
 function LogForm({ initial, pairs, onCancel, onSubmit }){
   const [f,setF] = useState({ id:initial.id, title:initial.title||"", body:initial.body||"",
     date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "),
-    fontSize:initial.fontSize||14, pinned:!!initial.pinned, createdAt:initial.createdAt });
+    fontSize:initial.fontSize||14, pinned:!!initial.pinned,
+    format:initial.format||"md", createdAt:initial.createdAt });
   const [tab,setTab] = useState("write");
   const [draft,setDraft] = useState(null);
   const set = k => e => setF({...f,[k]:e.target.value});
@@ -1614,7 +1692,7 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
   },[f, isNew]);
 
   const clearDraft = ()=>{ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} };
-  const chars = stripMd(f.body).length;
+  const chars = plainOf(f).length;
   return (
     <Modal idx={initial.id?"03·EDIT":"03·NEW"} title={initial.id?"글 수정":"새 글"} onClose={onCancel} wide>
       <div className="form">
@@ -1638,7 +1716,11 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
           </Field>
         </div>
         <div className="field">
-          <span className="lab">본문<em>마크다운 사용 가능</em></span>
+          <span className="lab">본문<em>{f.format==="html" ? "HTML 코드" : "마크다운"}</em></span>
+          <div className="seg fmtseg">
+            <button className={f.format!=="html"?"on":""} onClick={()=>setF({...f, format:"md"})}>마크다운</button>
+            <button className={f.format==="html"?"on":""} onClick={()=>setF({...f, format:"html"})}>HTML</button>
+          </div>
           <div className="editbar">
             <div className="seg">
               <button className={tab==="write"?"on":""} onClick={()=>setTab("write")}>쓰기</button>
@@ -1655,18 +1737,26 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
             </div>
           </div>
           {tab==="write" ? (<>
-            <textarea className="in ta lg" rows={14} value={f.body} onChange={set("body")}
-              style={{fontSize:(f.fontSize||14)+"px"}}
-              placeholder={"# 제목\n\n**굵게**, *기울임*, ~~취소선~~\n\n> 인용문\n- 목록\n\n[링크](https://example.com)"}/>
+            <textarea className={`in ta lg ${f.format==="html"?"codearea":""}`} rows={14} value={f.body} onChange={set("body")}
+              style={f.format==="html" ? null : {fontSize:(f.fontSize||14)+"px"}}
+              spellCheck={f.format!=="html"}
+              placeholder={f.format==="html"
+                ? "<p>백업해 둔 HTML 코드를 그대로 붙여넣으세요.</p>"
+                : "# 제목\n\n**굵게**, *기울임*, ~~취소선~~\n\n> 인용문\n- 목록\n\n[링크](https://example.com)"}/>
             <p className="mdhint">
               <b>{chars.toLocaleString()}자</b> · 약 {Math.max(1,Math.round(chars/500))}분 분량{isNew ? " · 자동 임시저장 중" : ""}<br/>
-              글자 크기는 미리보기와 저장된 글에 적용됩니다.<br/>
-              <b># 제목</b> · <b>**굵게**</b> · <b>*기울임*</b> · <b>~~취소선~~</b> · <b>&gt; 인용</b> ·
-              <b> - 목록</b> · <b>1. 번호</b> · <b>[글자](주소)</b> · <b>![](이미지주소)</b> · <b>---</b> 구분선
+              {f.format==="html" ? (<>
+                붙여넣은 코드는 그대로 보관되고, 볼 때 화면에 맞춰 표시됩니다.<br/>
+                안전을 위해 <b>script</b>·<b>iframe</b>·<b>style</b> 태그와 이벤트 속성은 표시할 때 빠집니다.
+              </>) : (<>
+                글자 크기는 미리보기와 저장된 글에 적용됩니다.<br/>
+                <b># 제목</b> · <b>**굵게**</b> · <b>*기울임*</b> · <b>~~취소선~~</b> · <b>&gt; 인용</b> ·
+                <b> - 목록</b> · <b>1. 번호</b> · <b>[글자](주소)</b> · <b>![](이미지주소)</b> · <b>---</b> 구분선
+              </>)}
             </p>
           </>) : (
             f.body.trim()
-              ? <div className="mdprev"><Md text={f.body} style={{fontSize:(f.fontSize||14)+"px"}}/></div>
+              ? <div className="mdprev"><Body log={f} style={{fontSize:(f.fontSize||14)+"px"}}/></div>
               : <div className="mdprev empty-prev">아직 쓴 내용이 없습니다.</div>
           )}
         </div>
