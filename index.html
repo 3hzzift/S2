@@ -105,7 +105,7 @@ img{max-width:100%;}
 .bottomnav{display:none;}
 
 /* ───────────────────────────── PANEL ───────────────────────────── */
-.panel{background:var(--pane); border:1px solid var(--line); min-width:0;}
+.panel{background:var(--pane); border:1px solid var(--line); min-width:0; overflow:hidden;}
 .panel-bar{display:flex; align-items:center; gap:10px; min-height:30px; padding:0 10px;
   border-bottom:1px solid var(--line);}
 .panel-idx{font-family:var(--mono); font-size:9px; letter-spacing:.08em; background:var(--chip-bg);
@@ -124,6 +124,7 @@ img{max-width:100%;}
 
 /* 열 그리드 */
 .cols{display:grid; gap:var(--gap); grid-template-columns:repeat(12,minmax(0,1fr));}
+.cols > *{min-width:0;}
 .c4{grid-column:span 4;} .c5{grid-column:span 5;} .c6{grid-column:span 6;}
 .c7{grid-column:span 7;} .c8{grid-column:span 8;} .c12{grid-column:span 12;}
 
@@ -193,8 +194,11 @@ html[data-theme="dark"] .hero .mono{color:rgba(0,0,0,.5);}
 .results button:hover{background:var(--hover);}
 .results .kind{font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; color:var(--chip-fg);
   background:var(--chip-bg); padding:3px 4px; text-align:center;}
-.results .rt{font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.results .rx{font-size:11px; color:var(--g1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.rmain{min-width:0; overflow:hidden;}
+.results .rt{display:block; font-size:13px; font-weight:700;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.results .rx{display:block; margin-top:3px; font-size:11px; color:var(--g1);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .results .rd{font-family:var(--mono); font-size:9px; color:var(--g1); white-space:nowrap;}
 
 /* ───────────────────────────── D-DAY ───────────────────────────── */
@@ -503,6 +507,9 @@ html[data-theme="dark"] .gate-art .mono{color:rgba(0,0,0,.5);}
   .btn,.sel,.search{min-height:var(--tap);}
   .seg button{min-height:var(--tap);}
   .log{grid-template-columns:26px minmax(0,1fr); padding:13px 12px; gap:10px;}
+  .results button{grid-template-columns:44px minmax(0,1fr); gap:6px 10px; padding:11px 12px;}
+  .results .rd{grid-column:2; grid-row:2; text-align:left;}
+  .results .kind{font-size:8px; padding:3px 2px;}
   .log-side{grid-column:2; text-align:left; display:flex; gap:12px; margin-top:5px;}
   .log-pair{margin-top:0;}
   .soon li{grid-template-columns:auto minmax(0,1fr); gap:6px 10px; padding:11px 12px;}
@@ -1296,7 +1303,7 @@ function Dashboard({ data, store, go }){
                       <li key={r.kind+r.id}>
                         <button onClick={()=>go(r.to,{focus:r.id, at:Date.now()})}>
                           <span className="kind">{r.kind}</span>
-                          <span style={{minWidth:0}}>
+                          <span className="rmain">
                             <span className="rt">{r.title}</span>
                             {r.sub ? <span className="rx">{r.sub}</span> : null}
                           </span>
@@ -1403,8 +1410,7 @@ function PairsView({ pairs, setPairs, intent, clear }){
       </Panel>
     ) : null}
 
-    <Panel idx="01" title="PAIRS / 페어 기록" meta={`${pad(pairs.length)} PAIRS`} flush
-      actions={<Btn variant="primary" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}>
+    <Panel idx="01" title="PAIRS / 페어 기록" meta={`${pad(pairs.length)} PAIRS`} flush>
       {pairs.length===0 ? (
         <Empty line="아직 기록 중인 페어가 없습니다. 첫 페어와 시작일을 등록하면 오늘이 며칠째인지 세기 시작합니다."
           action={<Btn variant="primary" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}/>
@@ -1574,7 +1580,6 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus, intent, cle
     <Panel idx="02" title="GALLERY / 커미션 아카이브"
       meta={`${pad(list.length)} POSTS · ${pad(gallery.reduce((n,g)=>n+imagesOf(g).length,0))} IMAGES`} flush
       actions={<>
-        <Btn variant="primary" onClick={()=>setEditing({})}>+ 그림 등록</Btn>
         <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
           <option value="">모든 페어</option>
           {pairs.map(p=><option key={p.id} value={p.id}>{p.nameA} × {p.nameB}</option>)}
@@ -1865,7 +1870,6 @@ function LogsView({ logs, setLogs, pairs, intent, clear }){
   return (<>
     <Panel idx="03" title="LOGS / 글 아카이브" meta={`${pad(list.length)} / ${pad(logs.length)}`} flush
       actions={<>
-        <Btn variant="primary" onClick={()=>setEditing({})}>+ 새 글 쓰기</Btn>
         <input className="search" value={q} onChange={e=>setQ(e.target.value)} placeholder="제목·본문·태그 검색"/>
         <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
           <option value="">모든 페어</option>
