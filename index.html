@@ -962,7 +962,7 @@ function Gate({ onCloud, onLocal }){
       <div className="gate-form">
         <div className="gate-form-in">
           {setup ? (
-            <Panel idx="00" title="CONNECT / 저장소 연결">
+            <Panel idx="00" title="CONNECT / STORAGE SETUP">
               <div className="form">
                 <p className="note" style={{marginTop:0}}>
                   기록을 계정에 저장하려면 Supabase 프로젝트 주소와 anon key가 필요합니다.
@@ -980,7 +980,7 @@ function Gate({ onCloud, onLocal }){
               </div>
             </Panel>
           ) : (
-            <Panel idx="00" title={mode==="up" ? "SIGN UP / 계정 만들기" : "SIGN IN / 로그인"}>
+            <Panel idx="00" title={mode==="up" ? "SIGN UP / NEW ACCOUNT" : "SIGN IN / RETURNING"}>
               <div className="form">
                 <div className="seg">
                   <button className={mode==="in"?"on":""} onClick={()=>{setMode("in");setMsg(null);}}>로그인</button>
@@ -1018,11 +1018,11 @@ function Gate({ onCloud, onLocal }){
    APP — 레일 / 바텀 내비 셸
    ═══════════════════════════════════════════════════════════ */
 const TABS = [
-  ["home","00","OVERVIEW","한눈에 보기"],
-  ["pairs","01","D-DAY","페어 기록"],
-  ["gallery","02","GALLERY","커미션 아카이브"],
-  ["logs","03","LOGS","글 아카이브"],
-  ["settings","04","SETTINGS","설정"],
+  ["home","00","OVERVIEW","Overview"],
+  ["pairs","01","D-DAY","Day Count"],
+  ["gallery","02","GALLERY","Commissioned Works"],
+  ["logs","03","LOGS","Written Logs"],
+  ["settings","04","SETTINGS","Preferences"],
 ];
 
 function App(){
@@ -1269,7 +1269,7 @@ function Dashboard({ data, store, go }){
               ) : null}
             </div>
           ) : (
-            <Panel idx="00" title="START / 시작하기">
+            <Panel idx="00" title="START / GET STARTED">
               <p className="note" style={{marginTop:0}}>첫 페어를 등록하면 오늘이 며칠째인지 여기에 크게 표시됩니다.</p>
               <div className="foot"><Btn variant="primary" onClick={()=>go("pairs",{action:"new",at:Date.now()})}>+ 페어 추가</Btn></div>
             </Panel>
@@ -1278,7 +1278,7 @@ function Dashboard({ data, store, go }){
 
         <div className="c7">
           <div style={{display:"flex", flexDirection:"column", gap:"var(--gap)"}}>
-            <Panel idx="SUM" title="ARCHIVE / 기록 현황" flush>
+            <Panel idx="SUM" title="ARCHIVE / SUMMARY" flush>
               <dl className="stats">
                 <div><dt>PAIRS</dt><dd className="num">{pairs.length}</dd></div>
                 <div><dt>IMAGES</dt><dd className="num">{gallery.reduce((n,g)=>n+imagesOf(g).length,0)}</dd></div>
@@ -1291,7 +1291,7 @@ function Dashboard({ data, store, go }){
               </div>
             </Panel>
 
-            <Panel idx="FIND" title="SEARCH / 전체 검색" flush>
+            <Panel idx="FIND" title="SEARCH / EVERYTHING" flush>
               <div className="panel-act">
                 <input className="search" value={q} onChange={e=>setQ(e.target.value)}
                   placeholder="글·그림·페어를 한 번에 검색"/>
@@ -1320,7 +1320,7 @@ function Dashboard({ data, store, go }){
       </div>
 
       {soon.length ? (
-        <Panel idx="NXT" title="UPCOMING / 다가오는 기념일" meta={`${pad(soon.length)}`} flush>
+        <Panel idx="NXT" title="UPCOMING / MILESTONES" meta={`${pad(soon.length)}`} flush>
           <ul className="soon">
             {soon.map(s=>(
               <li key={s.p.id}>
@@ -1335,7 +1335,7 @@ function Dashboard({ data, store, go }){
 
       <div className="cols">
         <div className="c6">
-          <Panel idx="02" title="RECENT / 최근 그림" meta={`${pad(gallery.length)}`} flush>
+          <Panel idx="02" title="RECENT / WORKS" meta={`${pad(gallery.length)}`} flush>
             {recentGal.length ? (
               <div className="recentgrid">
                 {recentGal.map(g=>(
@@ -1348,7 +1348,7 @@ function Dashboard({ data, store, go }){
           </Panel>
         </div>
         <div className="c6">
-          <Panel idx="03" title="RECENT / 최근 글" meta={`${pad(logs.length)}`} flush>
+          <Panel idx="03" title="RECENT / LOGS" meta={`${pad(logs.length)}`} flush>
             {recentLogs.length ? (
               <ul className="logs">
                 {recentLogs.map((l,i)=>(
@@ -1397,7 +1397,7 @@ function PairsView({ pairs, setPairs, intent, clear }){
 
   return (<>
     {soon.length ? (
-      <Panel idx="NXT" title="UPCOMING / 다가오는 기념일" meta={`${pad(soon.length)}`} flush>
+      <Panel idx="NXT" title="UPCOMING / MILESTONES" meta={`${pad(soon.length)}`} flush>
         <ul className="soon">
           {soon.map(s=>(
             <li key={s.p.id}>
@@ -1410,7 +1410,7 @@ function PairsView({ pairs, setPairs, intent, clear }){
       </Panel>
     ) : null}
 
-    <Panel idx="01" title="PAIRS / 페어 기록" meta={`${pad(pairs.length)} PAIRS`} flush>
+    <Panel idx="01" title="PAIRS / CHARACTER PAIRS" meta={`${pad(pairs.length)} PAIRS`} flush>
       {pairs.length===0 ? (
         <Empty line="아직 기록 중인 페어가 없습니다. 첫 페어와 시작일을 등록하면 오늘이 며칠째인지 세기 시작합니다."
           action={<Btn variant="primary" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}/>
@@ -1472,7 +1472,7 @@ function PairForm({ initial, onCancel, onSubmit }){
   const set = k => e => setF({...f,[k]:e.target.value});
   const preview = countFrom(f.startDate);
   return (
-    <Modal idx={initial.id?"01·EDIT":"01·NEW"} title={initial.id?"페어 수정":"페어 추가"} onClose={onCancel}>
+    <Modal idx={initial.id?"01·EDIT":"01·NEW"} title={initial.id?"EDIT PAIR":"NEW PAIR"} onClose={onCancel}>
       <div className="form">
         <div className="f2">
           <Field label="캐릭터 A"><input className="in" value={f.nameA} onChange={set("nameA")} placeholder="이름"/></Field>
@@ -1577,7 +1577,7 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus, intent, cle
   };
 
   return (<>
-    <Panel idx="02" title="GALLERY / 커미션 아카이브"
+    <Panel idx="02" title="GALLERY / COMMISSIONED WORKS"
       meta={`${pad(list.length)} POSTS · ${pad(gallery.reduce((n,g)=>n+imagesOf(g).length,0))} IMAGES`} flush
       actions={<>
         <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
@@ -1752,7 +1752,7 @@ function GalleryForm({ initial, pairs, store, onCancel, onSubmit }){
   });
 
   return (
-    <Modal idx={initial.id?"02·EDIT":"02·NEW"} title={initial.id?"게시물 수정":"그림 등록"} onClose={onCancel} wide>
+    <Modal idx={initial.id?"02·EDIT":"02·NEW"} title={initial.id?"EDIT POST":"NEW POST"} onClose={onCancel} wide>
       <div className="form">
         <Field label="이미지" hint="여러 장 가능 · 첫 장이 대표">
           <div className="addrow">
@@ -1868,7 +1868,7 @@ function LogsView({ logs, setLogs, pairs, intent, clear }){
   };
 
   return (<>
-    <Panel idx="03" title="LOGS / 글 아카이브" meta={`${pad(list.length)} / ${pad(logs.length)}`} flush
+    <Panel idx="03" title="LOGS / WRITTEN ARCHIVE" meta={`${pad(list.length)} / ${pad(logs.length)}`} flush
       actions={<>
         <input className="search" value={q} onChange={e=>setQ(e.target.value)} placeholder="제목·본문·태그 검색"/>
         <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
@@ -1978,7 +1978,7 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
   const chars = plainOf(f).length;
 
   return (
-    <Modal idx={initial.id?"03·EDIT":"03·NEW"} title={initial.id?"글 수정":"새 글"} onClose={onCancel} wide>
+    <Modal idx={initial.id?"03·EDIT":"03·NEW"} title={initial.id?"EDIT LOG":"NEW LOG"} onClose={onCancel} wide>
       <div className="form">
         {draft ? (
           <div className="draftbar">
@@ -2096,7 +2096,7 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
     <>
       <div className="cols">
         <div className="c6">
-          <Panel idx="04" title="THEME / 화면 모드">
+          <Panel idx="04" title="THEME / DISPLAY MODE">
             <div className="seg">
               {[["light","라이트"],["dark","다크"],["auto","기기 설정"]].map(([v,label])=>(
                 <button key={v} className={(d.theme||"auto")===v?"on":""} onClick={()=>setSettings({theme:v})}>{label}</button>
@@ -2106,7 +2106,7 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
           </Panel>
         </div>
         <div className="c6">
-          <Panel idx="05" title="ARCHIVE / 이름">
+          <Panel idx="05" title="ARCHIVE / NAMING">
             <div className="f2">
               <Field label="아카이브 제목">
                 <input className="in" value={d.title} onChange={e=>setD({...d,title:e.target.value})}
@@ -2121,7 +2121,7 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
         </div>
       </div>
 
-      <Panel idx="06" title="ACCENT / 포인트 컬러">
+      <Panel idx="06" title="ACCENT / POINT COLOR">
         <div className="sws">
           {PRESETS.map(([name,hex])=>(
             <button key={hex} className={`sw ${(d.accent||"").toUpperCase()===hex?"on":""}`}
@@ -2141,7 +2141,7 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
         </div>
       </Panel>
 
-      <Panel idx="07" title="ACCOUNT / 계정과 저장">
+      <Panel idx="07" title="ACCOUNT / ACCOUNT & STORAGE">
         <p className="note" style={{marginTop:0}}>
           {store.mode==="cloud"
             ? `${store.label} 계정으로 로그인되어 있습니다. 기록과 이미지는 계정에 저장되므로 다른 기기·브라우저에서 같은 아이디로 로그인하면 그대로 이어집니다.`
@@ -2161,7 +2161,7 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
         <p className="note small">백업 파일에는 글·페어·작품 정보가 들어갑니다. 업로드한 이미지 원본은 저장소에 그대로 남습니다.</p>
       </Panel>
 
-      <Panel idx="08" title="SHORTCUT / 단축키">
+      <Panel idx="08" title="SHORTCUT / KEYBOARD">
         <p className="note" style={{marginTop:0}}>
           <span className="kbd">1</span><span className="kbd">2</span><span className="kbd">3</span>
           <span className="kbd">4</span><span className="kbd">5</span> 섹션 이동 ·
