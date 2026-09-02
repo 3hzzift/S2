@@ -10,7 +10,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230B0B0C'/%3E%3Cpath d='M16 4 L18 14 L28 16 L18 18 L16 28 L14 18 L4 16 L14 14 Z' fill='%23fff'/%3E%3C/svg%3E" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <link rel="manifest" href="manifest.webmanifest" />
-<meta name="theme-color" content="#E9E9E7" />
+<meta name="theme-color" content="#E8E8E5" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -24,196 +24,242 @@
 
 <style>
 /* ═══════════════════════════════════════════════════════════
-   PERSONAL ARCHIVE — neo-swiss flat window system
+   PERSONAL ARCHIVE — neo-swiss system  v2
+   그리드 · 헤어라인 · 모노 라벨 · 플랫 윈도우
    ═══════════════════════════════════════════════════════════ */
 :root{
-  --paper:#E9E9E7; --pane:#FFFFFF; --ink:#0B0B0C; --line:#0B0B0C;
-  --g1:#6E6E73; --g2:#B7B7BA; --g3:#DEDEDC; --danger:#B3170A;
-  --accent:#1F4BFF;
-  --chip-bg:#0B0B0C; --chip-fg:#FFFFFF; --hover:#FAFAFA;
-  color-scheme:light;
+  --paper:#E8E8E5; --pane:#FFFFFF; --ink:#0A0A0B; --line:#0A0A0B;
+  --g1:#6C6C71; --g2:#B4B4B8; --g3:#DEDEDB; --g4:#F3F3F1;
+  --danger:#B3170A; --accent:#1F4BFF;
+  --chip-bg:#0A0A0B; --chip-fg:#FFFFFF; --hover:#F5F5F3;
   --sans:"Helvetica Neue",Helvetica,Inter,"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Arial,sans-serif;
   --mono:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Menlo,Consolas,monospace;
-  --tap:44px;
+  --rail:236px; --tap:44px; --gap:20px;
+  color-scheme:light;
 }
 html[data-theme="dark"]{
-  --paper:#151517; --pane:#1C1C1F; --ink:#EAEAE8; --line:#3E3E43;
-  --g1:#9B9BA1; --g2:#56565C; --g3:#2A2A2E; --danger:#FF6B5A;
-  --chip-bg:#EAEAE8; --chip-fg:#151517; --hover:#232327;
+  --paper:#101012; --pane:#191A1C; --ink:#EDEDEA; --line:#3A3A3F;
+  --g1:#9A9AA1; --g2:#55555B; --g3:#2A2A2E; --g4:#212124;
+  --danger:#FF6B5A; --chip-bg:#EDEDEA; --chip-fg:#101012; --hover:#212124;
   color-scheme:dark;
 }
 *{box-sizing:border-box;}
 html,body{margin:0; padding:0; background:var(--paper); color:var(--ink);}
 body{font-family:var(--sans); -webkit-font-smoothing:antialiased; -webkit-text-size-adjust:100%;
   min-height:100dvh; overflow-x:hidden;}
-button,input,select,textarea{font-family:inherit; border-radius:0;}
+button,input,select,textarea{font-family:inherit; border-radius:0; color:inherit;}
+button{-webkit-tap-highlight-color:transparent;}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 img{max-width:100%;}
+::selection{background:var(--accent); color:#fff;}
 
-.app{min-height:100dvh; padding-left:26px; position:relative; overflow-x:hidden;}
-button{-webkit-tap-highlight-color:transparent;}
-.pane{overflow:hidden;}
-.edge{position:fixed; left:0; top:0; bottom:0; width:26px; border-right:1px solid var(--line);
-  background:var(--chip-bg); color:var(--chip-fg); overflow:hidden; z-index:5;}
-.edge span{position:absolute; top:16px; left:50%; transform:translateX(-50%) rotate(90deg);
-  transform-origin:top left; white-space:nowrap; font-family:var(--mono); font-size:9px;
-  letter-spacing:.22em; text-transform:uppercase;}
-.shell{max-width:1160px; margin:0 auto; padding:22px 18px 0;}
+/* 공통 타이포 유틸 */
+.mono{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--g1);}
+.serif{font-family:Georgia,"Times New Roman",serif; font-style:italic;}
+.num{font-variant-numeric:tabular-nums;}
 
-/* ── masthead ── */
-.mast{border-bottom:2px solid var(--line); padding-bottom:10px;}
-.mast-top{display:flex; align-items:center; gap:12px; margin-bottom:6px;}
-.coord{font-family:var(--mono); font-size:9.5px; letter-spacing:.18em; text-transform:uppercase;
-  color:var(--g1); white-space:nowrap;}
-.rule{flex:1; height:1px; background:var(--line);}
-.mast h1{font-size:clamp(34px,10vw,84px); line-height:.86; letter-spacing:-.045em; font-weight:700;
-  margin:0; text-transform:lowercase; word-break:break-word;}
-.mast h1 .dot{color:var(--accent);}
-.mast-sub{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-top:8px; flex-wrap:wrap;}
-.serif{font-family:Georgia,"Times New Roman",serif; font-style:italic; font-size:15px; color:var(--g1);}
-.who{color:var(--accent);}
+/* ───────────────────────────── SHELL ───────────────────────────── */
+.app{display:grid; grid-template-columns:var(--rail) minmax(0,1fr); min-height:100dvh;}
 
-/* ── tabs ── */
-.tabs{display:flex; margin-top:16px; overflow-x:auto; scrollbar-width:none;}
-.tabs::-webkit-scrollbar{display:none;}
-.tab{background:transparent; border:1px solid var(--line); border-bottom:none; padding:10px 16px 9px;
-  margin-right:-1px; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; line-height:1;
-  color:var(--ink); white-space:nowrap;}
-.tab .n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em; line-height:1;}
-.tab:hover{background:var(--pane);}
-.tab.on{background:var(--chip-bg); color:var(--chip-fg);}
-.tab.on .n{color:var(--accent);}
-.main{border-top:1px solid var(--line);}
-.stack{display:flex; flex-direction:column; gap:18px; padding-top:18px;}
-.main > .pane{margin-top:18px;}
+/* 사이드 레일 (데스크톱) */
+.rail{position:sticky; top:0; height:100dvh; border-right:1px solid var(--line);
+  background:var(--paper); display:flex; flex-direction:column; z-index:20;}
+.rail-mark{border-bottom:1px solid var(--line); padding:20px 18px 16px;}
+.rail-mark h1{margin:0; font-size:30px; line-height:.9; letter-spacing:-.045em; font-weight:700;
+  text-transform:lowercase; word-break:break-word;}
+.rail-mark h1 .dot{color:var(--accent);}
+.rail-mark p{margin:8px 0 0;}
+.rail-nav{display:flex; flex-direction:column; padding:10px 0; flex:1;}
+.navitem{display:flex; align-items:center; gap:10px; padding:11px 18px; border:none; background:none;
+  cursor:pointer; text-align:left; font-size:12px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink); position:relative;}
+.navitem i{font-family:var(--mono); font-style:normal; font-size:9px; color:var(--g2); letter-spacing:.06em;}
+.navitem span{flex:1;}
+.navitem b{font-family:var(--mono); font-weight:400; font-size:9px; color:var(--g2);}
+.navitem:hover{background:var(--hover);}
+.navitem.on{background:var(--chip-bg); color:var(--chip-fg);}
+.navitem.on i,.navitem.on b{color:var(--accent);}
+.rail-foot{border-top:1px solid var(--line); padding:14px 18px; display:flex; flex-direction:column; gap:8px;}
+.rail-state{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+.dotstate{width:7px; height:7px; background:var(--g2); display:block;}
+.dotstate.live{background:var(--accent);}
+.dotstate.err{background:var(--danger);}
+.rail-theme{display:flex; gap:0;}
+.rail-theme button{flex:1; border:1px solid var(--line); background:var(--pane); cursor:pointer;
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; padding:6px 2px; margin-right:-1px; text-transform:uppercase;}
+.rail-theme button.on{background:var(--chip-bg); color:var(--chip-fg);}
 
-/* ── window pane ── */
-.pane{background:var(--pane); border:1px solid var(--line);}
-.bar{display:flex; align-items:center; gap:10px; min-height:26px; padding:0 8px; border-bottom:1px solid var(--line);}
-.bar .idx{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--chip-fg); background:var(--chip-bg); padding:2px 5px;}
-.bar .ttl{font-family:var(--mono); font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
-  font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.bar .meta{font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--g1);
-  margin-left:auto; white-space:nowrap;}
-.bar .tools{display:flex; align-items:center; gap:5px; margin-left:auto;}
-.bar .meta + .tools{margin-left:10px;}
-.sq{width:7px; height:7px; border:1px solid var(--ink); display:block;}
+/* 콘텐츠 */
+.content{min-width:0; display:flex; flex-direction:column;}
+.topbar{position:sticky; top:0; z-index:15; background:var(--paper);
+  border-bottom:1px solid var(--line); padding:14px 24px;
+  display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap;}
+.topbar-h{min-width:0; flex:1;}
+.topbar-h h2{margin:2px 0 0; font-size:clamp(24px,3.4vw,40px); line-height:.95; letter-spacing:-.04em; font-weight:700;}
+.topbar-h .sub{margin:6px 0 0; font-size:12.5px; color:var(--g1);}
+.topbar-act{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+.sheet{padding:24px; display:flex; flex-direction:column; gap:var(--gap); flex:1;}
+
+/* 모바일 마스트헤드 / 바텀 내비 (기본 숨김) */
+.mast{display:none;}
+.bottomnav{display:none;}
+
+/* ───────────────────────────── PANEL ───────────────────────────── */
+.panel{background:var(--pane); border:1px solid var(--line); min-width:0;}
+.panel-bar{display:flex; align-items:center; gap:10px; min-height:30px; padding:0 10px;
+  border-bottom:1px solid var(--line);}
+.panel-idx{font-family:var(--mono); font-size:9px; letter-spacing:.08em; background:var(--chip-bg);
+  color:var(--chip-fg); padding:3px 5px;}
+.panel-t{font-family:var(--mono); font-size:9.5px; letter-spacing:.2em; text-transform:uppercase;
+  font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.panel-meta{margin-left:auto; font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--g1); white-space:nowrap;}
+.panel-glyph{display:flex; align-items:center; gap:5px; margin-left:auto;}
+.panel-meta + .panel-glyph{margin-left:10px;}
+.sq{width:7px; height:7px; border:1px solid currentColor; display:block; opacity:.75;}
 .xmark{width:9px; height:9px; display:block;}
-.xmark line{stroke:var(--ink); stroke-width:1.4;}
-.pane-act{display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:10px; border-bottom:1px solid var(--g3);}
-.pane-body{padding:14px;}
+.xmark line{stroke:currentColor; stroke-width:1.4;}
+.panel-act{display:flex; gap:8px; flex-wrap:wrap; align-items:center; padding:10px; border-bottom:1px solid var(--g3);}
+.panel-body{padding:16px;}
+.panel.flush .panel-body{padding:0;}
 
-/* ── controls ── */
+/* 열 그리드 */
+.cols{display:grid; gap:var(--gap); grid-template-columns:repeat(12,minmax(0,1fr));}
+.c4{grid-column:span 4;} .c5{grid-column:span 5;} .c6{grid-column:span 6;}
+.c7{grid-column:span 7;} .c8{grid-column:span 8;} .c12{grid-column:span 12;}
+
+/* ───────────────────────────── CONTROLS ───────────────────────────── */
 .btn{border:1px solid var(--line); background:var(--pane); color:var(--ink); font-size:11px; font-weight:700;
   letter-spacing:.1em; text-transform:uppercase; padding:0 14px; height:38px; cursor:pointer;
-  display:inline-flex; align-items:center; justify-content:center; gap:6px;}
-.btn:hover{background:var(--g3);}
-.btn.solid{background:var(--accent); border-color:var(--accent); color:#fff;}
-.btn.solid:hover{filter:brightness(.9);}
-.btn.danger{color:var(--danger); border-color:var(--danger); background:var(--pane);}
+  display:inline-flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap;}
+.btn:hover{background:var(--hover);}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+.btn.primary:hover{filter:brightness(.92);}
+.btn.dark{background:var(--chip-bg); border-color:var(--chip-bg); color:var(--chip-fg);}
+.btn.danger{color:var(--danger); border-color:var(--danger);}
 .btn.danger:hover{background:var(--danger); color:#fff;}
 .btn[disabled]{opacity:.45; cursor:default;}
 .btn.filebtn{position:relative; overflow:hidden;}
 .btn.filebtn input{position:absolute; inset:0; opacity:0; cursor:pointer;}
 .sel,.search{border:1px solid var(--g2); background:var(--pane); font-family:var(--mono); font-size:10px;
-  letter-spacing:.08em; padding:0 8px; height:38px; color:var(--ink); text-transform:uppercase;}
-.search{min-width:170px; text-transform:none; flex:1;}
+  letter-spacing:.08em; padding:0 8px; height:38px; text-transform:uppercase; min-width:0;}
+.search{text-transform:none; flex:1 1 180px;}
+.seg{display:flex;}
+.seg button{flex:1; border:1px solid var(--line); background:var(--pane); padding:9px 8px; font-size:10.5px;
+  font-weight:700; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; margin-right:-1px;}
+.seg button.on{background:var(--chip-bg); color:var(--chip-fg);}
+.chips{display:flex; gap:6px; flex-wrap:wrap; padding:10px; border-bottom:1px solid var(--g3);}
+.chip{border:1px solid var(--g2); background:var(--pane); color:var(--ink); cursor:pointer;
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; padding:5px 8px;
+  display:flex; gap:5px; align-items:center;}
+.chip i{font-style:normal; color:var(--g2); font-size:8.5px;}
+.chip:hover{border-color:var(--ink);}
+.chip.on{background:var(--chip-bg); color:var(--chip-fg); border-color:var(--chip-bg);}
+.chip.on i{color:var(--chip-fg); opacity:.6;}
+.mini{border:none; background:none; padding:6px 0; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.14em; text-transform:uppercase; cursor:pointer; color:var(--g1); border-bottom:1px solid var(--g2);}
+.mini:hover{color:var(--ink); border-color:var(--ink);}
+.mini.del:hover{color:var(--danger); border-color:var(--danger);}
+.linkbtn{background:none; border:none; padding:6px 0; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g1); cursor:pointer; border-bottom:1px solid var(--g2);}
+.linkbtn:hover{color:var(--ink); border-color:var(--ink);}
 
-/* ── grids ── */
-.grid{display:grid; gap:1px; background:var(--g3); border-top:1px solid var(--g3);}
-.grid-pairs{grid-template-columns:repeat(auto-fill,minmax(268px,1fr));}
-.grid-gal{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));}
+/* ───────────────────────────── DASHBOARD ───────────────────────────── */
+.hero{background:var(--chip-bg); color:var(--chip-fg); border:1px solid var(--line); padding:22px 20px;
+  display:flex; flex-direction:column; gap:16px; min-height:100%;}
+.hero .mono{color:rgba(255,255,255,.55);}
+html[data-theme="dark"] .hero .mono{color:rgba(0,0,0,.5);}
+.hero-count{display:flex; align-items:baseline; gap:6px;}
+.hero-count .pre{font-family:var(--mono); font-size:13px; font-weight:700; color:var(--accent);}
+.hero-count .big{font-size:clamp(56px,7vw,88px); font-weight:700; letter-spacing:-.05em; line-height:.8;}
+.hero-count .unit{font-family:var(--mono); font-size:10px; letter-spacing:.1em; opacity:.6;}
+.hero-name{font-size:17px; font-weight:700; letter-spacing:-.02em; margin:0;}
+.hero-bar{height:6px; border:1px solid currentColor; margin-top:2px;}
+.hero-bar span{display:block; height:100%; background:var(--accent);}
+.hero-foot{margin-top:auto; display:flex; justify-content:space-between; gap:10px; align-items:baseline;}
+.stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px; background:var(--g3);}
+.stats div{background:var(--pane); padding:14px 12px;}
+.stats dt{font-family:var(--mono); font-size:9px; letter-spacing:.16em; color:var(--g1); text-transform:uppercase;}
+.stats dd{margin:6px 0 0; font-size:30px; font-weight:700; letter-spacing:-.04em; line-height:1;}
+.quick{display:flex; flex-wrap:wrap; gap:8px; padding:10px;}
+.quick .btn{flex:1 1 auto;}
+.recentgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:1px; background:var(--g3);}
+.recentgrid button{border:none; padding:0; background:var(--pane); cursor:pointer; aspect-ratio:1/1;}
+.recentgrid img{width:100%; height:100%; object-fit:cover; display:block;}
+.searchwrap{position:relative;}
+.results{list-style:none; margin:0; padding:0; border-top:1px solid var(--g3);}
+.results li + li{border-top:1px solid var(--g3);}
+.results button{width:100%; display:grid; grid-template-columns:52px minmax(0,1fr) auto; gap:10px;
+  align-items:center; background:var(--pane); border:none; cursor:pointer; text-align:left; padding:11px 12px;}
+.results button:hover{background:var(--hover);}
+.results .kind{font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; color:var(--chip-fg);
+  background:var(--chip-bg); padding:3px 4px; text-align:center;}
+.results .rt{font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.results .rx{font-size:11px; color:var(--g1); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.results .rd{font-family:var(--mono); font-size:9px; color:var(--g1); white-space:nowrap;}
 
-/* ── pair card ── */
-.card{background:var(--pane); padding:14px; display:flex; flex-direction:column;}
-.card-head{display:flex; justify-content:space-between; align-items:center; gap:8px; font-family:var(--mono);
-  font-size:9px; letter-spacing:.14em; color:var(--g1); text-transform:uppercase;}
+/* ───────────────────────────── D-DAY ───────────────────────────── */
+.grid{display:grid; gap:1px; background:var(--g3);}
+.grid-pairs{grid-template-columns:repeat(auto-fill,minmax(276px,1fr));}
+.grid-gal{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+.grid-gal.dense{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));}
+.card{background:var(--pane); padding:16px; display:flex; flex-direction:column;}
+.card-head{display:flex; justify-content:space-between; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--g1); text-transform:uppercase;}
 .card-tag{color:var(--accent); font-weight:700; display:flex; align-items:center; gap:4px;}
-.pair-name{font-size:19px; letter-spacing:-.02em; font-weight:700; margin:10px 0 0; line-height:1.2;}
+.pair-name{font-size:20px; letter-spacing:-.025em; font-weight:700; margin:12px 0 0; line-height:1.2;}
 .cross{color:var(--accent); font-weight:400;}
-.pair-sub{margin:3px 0 0; font-family:Georgia,serif; font-style:italic; font-size:12.5px; color:var(--g1);}
-.count{display:flex; align-items:baseline; gap:4px; margin:14px 0 4px; border-top:1px solid var(--line); padding-top:10px;}
+.pair-sub{margin:4px 0 0; font-family:Georgia,serif; font-style:italic; font-size:12.5px; color:var(--g1);}
+.count{display:flex; align-items:baseline; gap:4px; margin:16px 0 4px; border-top:1px solid var(--line); padding-top:12px;}
 .count .pre{font-family:var(--mono); font-size:13px; font-weight:700; color:var(--accent);}
-.count .num{font-size:clamp(46px,11vw,64px); font-weight:700; letter-spacing:-.05em; line-height:.82;}
-.count .unit{font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--g1); margin-left:2px;}
-.ms{margin-top:12px;}
+.count .big{font-size:clamp(46px,7vw,62px); font-weight:700; letter-spacing:-.05em; line-height:.82;}
+.count .unit{font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--g1);}
+.ms{margin-top:14px;}
 .ms-row{display:flex; justify-content:space-between; gap:8px; font-family:var(--mono); font-size:9px;
   letter-spacing:.12em; text-transform:uppercase;}
 .ms-track{height:6px; border:1px solid var(--line); margin:5px 0;
   background:repeating-linear-gradient(45deg,var(--g3) 0 3px,transparent 3px 6px);}
 .ms-fill{display:block; height:100%; background:var(--accent);}
 .ms-foot{color:var(--g1);}
-.card-memo{font-size:12.5px; line-height:1.6; color:var(--g1); margin:12px 0 0; white-space:pre-wrap;}
-.card-foot{display:flex; gap:14px; margin-top:auto; padding-top:14px;}
-.mini{border:none; background:none; padding:6px 0; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
-  text-transform:uppercase; cursor:pointer; color:var(--g1); border-bottom:1px solid var(--g2);}
-.mini:hover{color:var(--ink); border-color:var(--ink);}
-.mini.del:hover{color:var(--danger); border-color:var(--danger);}
-
-/* ── gallery ── */
-.thumb{background:var(--pane); border:none; padding:10px; cursor:pointer; text-align:left; display:block; width:100%;}
-.thumb:hover{background:var(--hover);}
-.frame{display:block; border:1px solid var(--line); aspect-ratio:1/1; overflow:hidden; background:var(--g3);}
-.frame img{width:100%; height:100%; object-fit:cover; display:block;}
-.thumb-meta{display:grid; grid-template-columns:auto 1fr; gap:2px 8px; margin-top:8px; align-items:baseline;}
-.thumb-n{font-family:var(--mono); font-size:9px; color:var(--chip-fg); background:var(--chip-bg); padding:1px 4px; grid-row:span 2;}
-.thumb-t{font-size:12px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.thumb-a{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--accent);
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.imgph{width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-family:var(--mono);
-  font-size:9px; letter-spacing:.2em; color:var(--g1);}
-.frame{position:relative;}
-.cnt{position:absolute; top:0; right:0; background:var(--chip-bg); color:var(--chip-fg); font-family:var(--mono);
-  font-size:9px; letter-spacing:.08em; padding:3px 5px; border-left:1px solid var(--line); border-bottom:1px solid var(--line);}
-
-/* ── 다가오는 기념일 ── */
+.card-memo{font-size:12.5px; line-height:1.6; color:var(--g1); margin:14px 0 0; white-space:pre-wrap;}
+.card-foot{display:flex; gap:16px; margin-top:auto; padding-top:16px;}
 .soon{list-style:none; margin:0; padding:0;}
 .soon li{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:12px; align-items:center;
-  padding:11px 14px; border-top:1px solid var(--g3);}
+  padding:12px 14px; border-top:1px solid var(--g3);}
 .soon li:first-child{border-top:none;}
-.soon-d{font-family:var(--mono); font-size:11px; font-weight:700; color:#fff;
-  background:var(--accent); padding:3px 6px; letter-spacing:.06em;}
+.soon-d{font-family:var(--mono); font-size:11px; font-weight:700; color:#fff; background:var(--accent);
+  padding:3px 6px; letter-spacing:.06em;}
 .soon-main{min-width:0; display:flex; flex-direction:column; gap:2px;}
 .soon-main b{font-size:13.5px; letter-spacing:-.01em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .soon-main span{font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:var(--g1); text-transform:uppercase;}
 .soon-date{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--g1); white-space:nowrap;}
 
-/* ── 태그 칩 ── */
-.chips{display:flex; gap:6px; flex-wrap:wrap; padding:10px 10px 12px; border-bottom:1px solid var(--g3);}
-.chip{border:1px solid var(--g2); background:var(--pane); color:var(--ink); cursor:pointer;
-  font-family:var(--mono); font-size:9.5px; letter-spacing:.08em; padding:5px 8px; display:flex; gap:5px; align-items:center;}
-.chip i{font-style:normal; color:var(--g2); font-size:8.5px;}
-.chip:hover{border-color:var(--ink);}
-.chip.on{background:var(--chip-bg); color:var(--chip-fg); border-color:var(--chip-bg);}
-.chip.on i{color:var(--chip-fg); opacity:.6;}
-
-/* ── 임시저장 안내 ── */
-.draftbar{border:1px solid var(--accent); padding:9px 10px; display:flex; gap:10px; align-items:center;
-  justify-content:space-between; flex-wrap:wrap; font-family:var(--mono); font-size:9.5px;
-  letter-spacing:.08em; color:var(--g1);}
-.draftbar-act{display:flex; gap:10px;}
-.draftbar button{border:none; background:none; cursor:pointer; font-family:var(--mono); font-size:9.5px;
-  letter-spacing:.1em; text-transform:uppercase; color:var(--accent); border-bottom:1px solid var(--accent); padding:2px 0;}
-.draftbar button:last-child{color:var(--g1); border-color:var(--g2);}
-
-/* ── 전체화면 확대 ── */
-.zoom{position:fixed; inset:0; z-index:70; background:rgba(11,11,12,.94); display:flex;
-  align-items:center; justify-content:center; padding:16px; cursor:zoom-out;}
-.zoom img{max-width:100%; max-height:88vh; object-fit:contain;}
-.zoom-hint{position:absolute; left:0; right:0; bottom:calc(14px + env(safe-area-inset-bottom)); text-align:center;
-  font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:rgba(255,255,255,.62); text-transform:uppercase;}
-.savedat{font-family:var(--mono); opacity:.6;}
-
-/* 게시물 보기 — 여러 장 넘겨보기 */
+/* ───────────────────────────── GALLERY ───────────────────────────── */
+.thumb{background:var(--pane); border:none; padding:10px; cursor:pointer; text-align:left; display:block; width:100%;}
+.thumb:hover{background:var(--hover);}
+.frame{display:block; position:relative; border:1px solid var(--line); aspect-ratio:1/1; overflow:hidden; background:var(--g3);}
+.frame img{width:100%; height:100%; object-fit:cover; display:block;}
+.cnt{position:absolute; top:0; right:0; background:var(--chip-bg); color:var(--chip-fg);
+  font-family:var(--mono); font-size:9px; letter-spacing:.08em; padding:3px 5px;
+  border-left:1px solid var(--line); border-bottom:1px solid var(--line);}
+.thumb-meta{display:grid; grid-template-columns:auto minmax(0,1fr); gap:2px 8px; margin-top:9px; align-items:baseline;}
+.thumb-n{font-family:var(--mono); font-size:9px; color:var(--chip-fg); background:var(--chip-bg);
+  padding:1px 4px; grid-row:span 2;}
+.thumb-t{font-size:12px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.thumb-a{font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--accent);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.imgph{width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:9px; letter-spacing:.2em; color:var(--g1);}
 .stage{position:relative;}
-.nav{position:absolute; top:50%; transform:translateY(-50%); width:34px; height:52px; border:1px solid var(--line);
-  background:var(--pane); color:var(--ink); font-size:20px; line-height:1; cursor:pointer; display:flex;
+.view-img{display:block; width:100%; border:1px solid var(--line); background:var(--g3); padding:8px;
+  text-align:center; cursor:zoom-in;}
+.view-img img{max-height:52vh; display:block; margin:0 auto;}
+.nav{position:absolute; top:50%; transform:translateY(-50%); width:36px; height:56px; border:1px solid var(--line);
+  background:var(--pane); font-size:20px; line-height:1; cursor:pointer; display:flex;
   align-items:center; justify-content:center; padding:0;}
 .nav:hover{background:var(--chip-bg); color:var(--chip-fg);}
 .nav.prev{left:8px;} .nav.next{right:8px;}
-.pageno{position:absolute; left:8px; bottom:8px; background:var(--chip-bg); color:var(--chip-fg); font-family:var(--mono);
-  font-size:9px; letter-spacing:.14em; padding:3px 6px;}
+.pageno{position:absolute; left:8px; bottom:8px; background:var(--chip-bg); color:var(--chip-fg);
+  font-family:var(--mono); font-size:9px; letter-spacing:.14em; padding:3px 6px;}
 .strip{display:flex; gap:6px; overflow-x:auto; padding-bottom:2px;}
 .strip::-webkit-scrollbar{height:4px;}
 .strip::-webkit-scrollbar-thumb{background:var(--g2);}
@@ -221,127 +267,151 @@ button{-webkit-tap-highlight-color:transparent;}
   cursor:pointer; overflow:hidden;}
 .stripcell img{width:100%; height:100%; object-fit:cover; display:block;}
 .stripcell.on{border-color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent);}
+.zoom{position:fixed; inset:0; z-index:70; background:rgba(10,10,11,.94); display:flex;
+  align-items:center; justify-content:center; padding:16px; cursor:zoom-out;}
+.zoom img{max-width:100%; max-height:88dvh; object-fit:contain;}
+.zoom-hint{position:absolute; left:0; right:0; bottom:calc(14px + env(safe-area-inset-bottom)); text-align:center;
+  font-family:var(--mono); font-size:9px; letter-spacing:.14em; color:rgba(255,255,255,.6); text-transform:uppercase;}
 
-/* ── logs ── */
+/* ───────────────────────────── LOGS ───────────────────────────── */
 .logs{list-style:none; margin:0; padding:0;}
 .logs li + li{border-top:1px solid var(--g3);}
 .log{width:100%; background:var(--pane); border:none; cursor:pointer; text-align:left;
-  display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:12px; align-items:baseline; padding:14px;}
+  display:grid; grid-template-columns:38px minmax(0,1fr) auto; gap:14px; align-items:baseline; padding:15px 14px;}
 .log:hover{background:var(--hover);}
 .log:hover .log-t{color:var(--accent);}
 .log-n{font-family:var(--mono); font-size:9px; color:var(--g2); letter-spacing:.1em;}
-.log-main{min-width:0; overflow:hidden;}
-.log-t{display:block; font-size:14px; font-weight:700; letter-spacing:-.015em;
+.log-main{min-width:0;}
+.log-t{display:block; font-size:14.5px; font-weight:700; letter-spacing:-.02em;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.log-ex{display:block; font-size:11.5px; color:var(--g1); margin-top:3px; overflow:hidden;
+.log-badge{font-family:var(--mono); font-size:8px; letter-spacing:.1em; border:1px solid var(--g2);
+  padding:1px 3px; color:var(--g1); margin-left:6px; vertical-align:middle;}
+.log-ex{display:block; font-size:11.5px; color:var(--g1); margin-top:4px; overflow:hidden;
   text-overflow:ellipsis; white-space:nowrap;}
 .log-side{text-align:right; font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--g1); white-space:nowrap;}
-.log-pair{display:block; color:var(--accent); margin-top:3px;}
+.log-pair{display:block; color:var(--accent); margin-top:4px;}
 
-/* ── empty ── */
-.empty{padding:44px 20px; text-align:center; background:var(--pane);}
-.empty p{max-width:380px; margin:12px auto 16px; font-size:13px; line-height:1.65; color:var(--g1);}
+/* ───────────────────────────── EMPTY ───────────────────────────── */
+.empty{padding:48px 20px; text-align:center; background:var(--pane);}
+.empty p{max-width:400px; margin:14px auto 18px; font-size:13px; line-height:1.7; color:var(--g1);}
 .star{display:block; margin:0 auto;}
 
-/* ── modal ── */
-.scrim{position:fixed; inset:0; background:rgba(11,11,12,.62); display:flex; align-items:flex-start;
-  justify-content:center; padding:24px 16px; overflow:auto; z-index:60;}
-.modal{background:var(--pane); border:1px solid var(--line); width:100%; max-width:520px; margin:auto;}
-.modal.wide{max-width:780px;}
-.modal-body{padding:16px; max-height:78vh; overflow:auto; -webkit-overflow-scrolling:touch;}
+/* ───────────────────────────── MODAL ───────────────────────────── */
+.scrim{position:fixed; inset:0; background:rgba(10,10,11,.6); display:flex; align-items:flex-start;
+  justify-content:center; padding:28px 16px; overflow:auto; z-index:60;}
+.modal{background:var(--pane); border:1px solid var(--line); width:100%; max-width:560px; margin:auto;}
+.modal.wide{max-width:820px;}
+.modal-body{padding:18px; max-height:78vh; overflow:auto;}
 .close{border:none; background:transparent; cursor:pointer; padding:6px; display:flex; align-items:center;}
 
-/* ── forms ── */
-.form{display:flex; flex-direction:column; gap:12px;}
-.f2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+/* ───────────────────────────── FORMS ───────────────────────────── */
+.form{display:flex; flex-direction:column; gap:14px;}
+.f2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
 .f2 > *{min-width:0;}
-.field{display:flex; flex-direction:column; gap:5px; min-width:0;}
-.lab{font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; display:flex; gap:6px; align-items:baseline;}
+.field{display:flex; flex-direction:column; gap:6px; min-width:0;}
+.lab{font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase;
+  display:flex; gap:6px; align-items:baseline;}
 .lab em{font-style:normal; color:var(--g2); letter-spacing:.1em;}
-.in{border:1px solid var(--line); background:var(--pane); padding:10px; font-size:16px; color:var(--ink);
+.in{border:1px solid var(--line); background:var(--pane); padding:10px; font-size:16px;
   width:100%; min-width:0; max-width:100%;}
-input[type="date"].in{-webkit-appearance:none; appearance:none; text-align:left; height:44px;}
 .in.lg{font-size:18px; font-weight:700;}
 .in:focus{outline:2px solid var(--accent); outline-offset:-1px;}
-.ta{resize:vertical; line-height:1.65; font-size:15px;}
-.ta.lg{min-height:230px;}
+input[type="date"].in{-webkit-appearance:none; appearance:none; text-align:left; height:44px;}
+.ta{resize:vertical; line-height:1.7; font-size:15px;}
+.ta.lg{min-height:240px;}
+.codearea{font-family:var(--mono) !important; font-size:12.5px !important; line-height:1.6;
+  white-space:pre; overflow-wrap:normal; overflow-x:auto;}
 .check{display:flex; align-items:center; gap:8px; font-size:13px; padding:4px 0;}
 .check input{width:18px; height:18px;}
-.foot{display:flex; gap:8px; justify-content:flex-end; padding-top:4px; flex-wrap:wrap;}
-.preview{border:1px solid var(--accent); padding:9px 12px; display:flex; justify-content:space-between;
-  align-items:baseline; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--g1);}
-.preview strong{font-family:var(--sans); font-size:20px; letter-spacing:-.03em; color:var(--accent);}
-.formprev{border:1px solid var(--g2); padding:6px; background:var(--g3);}
-.formprev img{display:block; max-height:220px; margin:0 auto;}
+.foot{display:flex; gap:8px; justify-content:flex-end; padding-top:6px; flex-wrap:wrap;}
+.preview{border:1px solid var(--accent); padding:10px 12px; display:flex; justify-content:space-between;
+  align-items:baseline; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--g1);}
+.preview strong{font-family:var(--sans); font-size:22px; letter-spacing:-.03em; color:var(--accent);}
+.editbar{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap;}
+.editbar .seg{flex:1 1 200px;}
+.fmtseg{margin-bottom:2px;}
+.sizer{display:flex; align-items:center; gap:2px; border:1px solid var(--line); padding:0 6px 0 8px;
+  font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--g1);}
+.sizer-lab{margin-right:4px; white-space:nowrap;}
+.sizer button{width:28px; height:34px; border:none; background:none; cursor:pointer; font-size:15px; padding:0;}
+.sizer button:hover:not([disabled]){color:var(--accent);}
+.sizer button[disabled]{opacity:.3; cursor:default;}
+.sizer b{min-width:22px; text-align:center; font-family:var(--mono); font-size:11px; color:var(--ink);}
+.sizer-reset{width:auto !important; font-size:9px !important; letter-spacing:.1em; padding:0 6px !important;
+  border-left:1px solid var(--g3) !important; margin-left:4px; color:var(--g1) !important;}
+.mdhint{font-family:var(--mono); font-size:9.5px; line-height:1.9; letter-spacing:.04em; color:var(--g1); margin:8px 0 0;}
+.mdhint b{font-weight:400; color:var(--ink);}
+.mdprev{border:1px solid var(--line); padding:16px; min-height:240px; max-height:52vh; overflow-y:auto;}
+.mdprev.empty-prev{color:var(--g1); font-size:12.5px; display:flex; align-items:center; justify-content:center;}
+.draftbar{border:1px solid var(--accent); padding:10px; display:flex; gap:10px; align-items:center;
+  justify-content:space-between; flex-wrap:wrap; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.08em; color:var(--g1);}
+.draftbar-act{display:flex; gap:10px;}
+.draftbar button{border:none; background:none; cursor:pointer; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--accent); border-bottom:1px solid var(--accent); padding:2px 0;}
+.draftbar button:last-child{color:var(--g1); border-color:var(--g2);}
 .prevwrap{border:1px solid var(--g2); padding:8px; background:var(--pane);}
 .prevhead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;
   font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--g1);}
-.prevgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:6px;}
+.prevgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:6px;}
 .prevcell{position:relative; aspect-ratio:1/1; border:1px solid var(--line); background:var(--g3); overflow:hidden;}
 .prevcell img{width:100%; height:100%; object-fit:cover; display:block;}
-.prevn{position:absolute; left:0; bottom:0; background:var(--chip-bg); color:var(--chip-fg); font-family:var(--mono);
-  font-size:9px; padding:1px 4px; letter-spacing:.08em;}
-.prevx{position:absolute; top:0; right:0; width:22px; height:22px; border:none; border-left:1px solid var(--line);
+.prevcell.cover{box-shadow:inset 0 0 0 2px var(--accent);}
+.prevn{position:absolute; left:0; bottom:0; background:var(--chip-bg); color:var(--chip-fg);
+  font-family:var(--mono); font-size:9px; padding:1px 4px; letter-spacing:.08em;}
+.prevcell.cover .prevn{background:var(--accent); color:#fff;}
+.prevx{position:absolute; top:0; right:0; width:24px; height:24px; border:none; border-left:1px solid var(--line);
   border-bottom:1px solid var(--line); background:var(--pane); cursor:pointer; display:flex;
   align-items:center; justify-content:center; padding:0;}
-.prevx:hover{background:var(--danger);}
-.prevx:hover line{stroke:#fff;}
-.prevcell.cover{box-shadow:inset 0 0 0 2px var(--accent);}
-.prevcell.cover .prevn{background:var(--accent);}
+.prevx:hover{background:var(--danger); color:#fff;}
 .prevmove{position:absolute; right:0; bottom:0; display:flex;}
-.prevmove button{width:20px; height:20px; border:none; border-left:1px solid var(--line); border-top:1px solid var(--line);
-  background:var(--pane); cursor:pointer; font-size:12px; line-height:1; padding:0; color:var(--ink);}
+.prevmove button{width:22px; height:22px; border:none; border-left:1px solid var(--line); border-top:1px solid var(--line);
+  background:var(--pane); cursor:pointer; font-size:12px; line-height:1; padding:0;}
 .prevmove button:hover:not([disabled]){background:var(--chip-bg); color:var(--chip-fg);}
 .prevmove button[disabled]{opacity:.3; cursor:default;}
 .addrow{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
 .addrow .in{flex:1; min-width:180px;}
-.seg{display:flex;}
-.seg button{flex:1; border:1px solid var(--line); background:var(--pane); padding:10px 8px; font-size:10.5px;
-  font-weight:700; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; margin-right:-1px;}
-.seg button.on{background:var(--chip-bg); color:var(--chip-fg);}
+.formprev{border:1px solid var(--g2); padding:6px; background:var(--g3);}
+.formprev img{display:block; max-height:220px; margin:0 auto;}
 
-/* ── detail ── */
-.view{display:flex; flex-direction:column; gap:14px;}
-.view-img{display:block; width:100%; border:1px solid var(--line); background:var(--g3); padding:8px;
-  text-align:center; cursor:zoom-in;}
-.view-img img{max-height:56vh; display:block; margin:0 auto;}
+/* ───────────────────────────── DETAIL / TEXT ───────────────────────────── */
+.view{display:flex; flex-direction:column; gap:16px;}
 .metagrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1px;
   background:var(--g3); border:1px solid var(--g3); margin:0;}
-.metagrid > div{background:var(--pane); padding:9px 10px;}
+.metagrid > div{background:var(--pane); padding:10px;}
 .metagrid .wide{grid-column:1/-1;}
 .metagrid dt{font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--g1);}
-.metagrid dd{margin:4px 0 0; font-size:13px;}
+.metagrid dd{margin:5px 0 0; font-size:13px;}
 .pre{white-space:pre-wrap; line-height:1.8; word-break:break-word;}
-.read-meta{display:flex; gap:16px; flex-wrap:wrap; font-family:var(--mono); font-size:9.5px; letter-spacing:.14em;
-  text-transform:uppercase; color:var(--g1); border-bottom:1px solid var(--line); padding-bottom:8px;}
-.read-body{font-size:14px; margin:14px 0; max-width:62ch;}
+.read-meta{display:flex; gap:8px 16px; flex-wrap:wrap; font-family:var(--mono); font-size:9.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--g1); border-bottom:1px solid var(--line); padding-bottom:10px;}
+.read-body{font-size:14px; margin:16px 0; max-width:64ch;}
 
-/* 마크다운 본문 */
-.md{line-height:1.8; word-break:break-word;}
+.md{line-height:1.85; word-break:break-word;}
 .md > *:first-child{margin-top:0;}
 .md > *:last-child{margin-bottom:0;}
 .md p{margin:0 0 1em;}
-.md h2,.md h3,.md h4,.md h5{letter-spacing:-.02em; line-height:1.25; margin:1.6em 0 .5em; font-weight:700;}
+.md h2,.md h3,.md h4,.md h5{letter-spacing:-.025em; line-height:1.25; margin:1.7em 0 .5em; font-weight:700;}
 .md h2{font-size:1.5em; border-bottom:1px solid var(--line); padding-bottom:.25em;}
 .md h3{font-size:1.24em;}
 .md h4{font-size:1.08em;}
 .md h5{font-size:1em; font-family:var(--mono); letter-spacing:.1em; text-transform:uppercase; color:var(--g1);}
 .md ul,.md ol{margin:0 0 1em; padding-left:1.4em;}
-.md li{margin:.25em 0;}
+.md li{margin:.3em 0;}
 .md ul{list-style:none; padding-left:1.1em;}
 .md ul li{position:relative;}
 .md ul li::before{content:""; position:absolute; left:-1.1em; top:.72em; width:5px; height:5px; background:var(--accent);}
 .md ol li::marker{font-family:var(--mono); font-size:.85em; color:var(--g1);}
 .md blockquote{margin:0 0 1em; padding:.1em 0 .1em 1em; border-left:2px solid var(--accent); color:var(--g1);}
-.md hr{border:none; border-top:1px solid var(--line); margin:1.8em 0;}
+.md hr{border:none; border-top:1px solid var(--line); margin:1.9em 0;}
 .md a{color:var(--accent); text-underline-offset:2px;}
 .md code{font-family:var(--mono); font-size:.86em; background:var(--g3); padding:1px 4px;}
-.md pre{background:var(--chip-bg); color:var(--chip-fg); padding:12px; overflow-x:auto; margin:0 0 1em;}
+.md pre{background:var(--chip-bg); color:var(--chip-fg); padding:14px; overflow-x:auto; margin:0 0 1em;}
 .md pre code{background:none; color:inherit; padding:0; font-size:12px; line-height:1.6;}
 .md img{display:block; border:1px solid var(--line); margin:0 0 1em;}
-.md strong{font-weight:700;}
 .md del{color:var(--g1);}
-/* ── HTML 백업 본문 ── */
+
 .htmlbody{line-height:1.8; word-break:break-word; overflow-wrap:anywhere;}
 .htmlbody > *:first-child{margin-top:0;}
 .htmlbody > *:last-child{margin-bottom:0;}
@@ -354,182 +424,139 @@ input[type="date"].in{-webkit-appearance:none; appearance:none; text-align:left;
 .htmlbody hr{border:none; border-top:1px solid var(--line); margin:1.6em 0;}
 .htmlbody h1,.htmlbody h2,.htmlbody h3{letter-spacing:-.02em; line-height:1.25;}
 .htmlbody *{max-width:100%;}
-.fmtseg{margin-bottom:2px;}
-.codearea{font-family:var(--mono) !important; font-size:12.5px !important; line-height:1.6;
-  white-space:pre; overflow-wrap:normal; overflow-x:auto;}
-.mdhint{font-family:var(--mono); font-size:9.5px; line-height:1.9; letter-spacing:.04em; color:var(--g1); margin:6px 0 0;}
-.mdhint b{font-weight:400; color:var(--ink);}
-.mdprev{border:1px solid var(--line); padding:14px; min-height:240px; max-height:52vh; overflow-y:auto;}
-.mdprev.empty-prev{color:var(--g1); font-size:12.5px; display:flex; align-items:center; justify-content:center;}
-.editbar{display:flex; gap:8px; align-items:stretch; flex-wrap:wrap;}
-.editbar .seg{flex:1 1 200px;}
-.sizer{display:flex; align-items:center; gap:2px; border:1px solid var(--line); padding:0 6px 0 8px;
-  font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--g1);}
-.sizer-lab{margin-right:4px; white-space:nowrap;}
-.sizer button{width:28px; height:32px; border:none; background:none; cursor:pointer; font-size:15px;
-  line-height:1; color:var(--ink); padding:0;}
-.sizer button:hover:not([disabled]){color:var(--accent);}
-.sizer button[disabled]{opacity:.3; cursor:default;}
-.sizer b{min-width:22px; text-align:center; font-family:var(--mono); font-size:11px; color:var(--ink);}
-.sizer-reset{width:auto !important; font-family:var(--mono); font-size:9px !important; letter-spacing:.1em;
-  padding:0 6px !important; border-left:1px solid var(--g3) !important; color:var(--g1) !important; margin-left:4px;}
 
-/* ── settings ── */
+/* ───────────────────────────── SETTINGS ───────────────────────────── */
 .sws{display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px;}
 .sw{border:1px solid var(--g2); background:var(--pane); padding:6px; cursor:pointer; display:flex; flex-direction:column; gap:5px;}
-.sw span{display:block; height:30px; border:1px solid var(--line);}
+.sw span{display:block; height:32px; border:1px solid var(--line);}
 .sw em{font-family:var(--mono); font-size:9px; letter-spacing:.12em; font-style:normal; color:var(--g1);}
 .sw.on{box-shadow:inset 0 0 0 2px var(--ink); border-color:var(--ink);}
 .sw.on em{color:var(--ink); font-weight:700;}
-.color{width:100%; height:40px; border:1px solid var(--line); background:var(--pane); padding:3px; cursor:pointer;}
-.note{font-size:12.5px; line-height:1.7; color:var(--g1); margin:12px 0 0;}
+.color{width:100%; height:44px; border:1px solid var(--line); background:var(--pane); padding:3px; cursor:pointer;}
+.note{font-size:12.5px; line-height:1.75; color:var(--g1); margin:12px 0 0;}
 .note.small{font-size:11px;}
-.mt{margin-top:12px;}
+.mt{margin-top:14px;}
 code{font-family:var(--mono); font-size:11px; background:var(--g3); padding:1px 4px;}
+.kbd{display:inline-flex; align-items:center; justify-content:center; min-width:20px; height:20px;
+  border:1px solid var(--g2); font-family:var(--mono); font-size:9.5px; padding:0 5px; margin-right:4px;}
 
-/* ── status ── */
-.status{display:flex; gap:14px; align-items:center; border:1px solid var(--line); border-bottom:none;
-  background:var(--chip-bg); color:var(--chip-fg); padding:9px 10px; margin-top:18px; font-family:var(--mono);
-  font-size:9px; letter-spacing:.16em; text-transform:uppercase; flex-wrap:wrap;
-  position:sticky; bottom:0; z-index:4;}
-.status .sp{flex:1;}
-.state{color:var(--g2);}
-.state.live{color:#fff; background:var(--accent); padding:2px 6px;}
-.state.err{color:#fff; background:var(--danger); padding:2px 6px;}
-
-/* ── gate (login) ── */
-.gate{min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:24px 16px;}
-.gate-inner{width:100%; max-width:420px;}
-.gate-mast{margin-bottom:18px;}
-.gate-mast h1{font-size:clamp(34px,12vw,58px); margin:0; line-height:.86; letter-spacing:-.045em;
+/* ───────────────────────────── GATE ───────────────────────────── */
+.gate{min-height:100dvh; display:grid; grid-template-columns:1fr 1fr;}
+.gate-art{background:var(--chip-bg); color:var(--chip-fg); padding:40px; display:flex;
+  flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;}
+.gate-art h1{margin:0; font-size:clamp(40px,5.4vw,76px); line-height:.86; letter-spacing:-.05em;
   font-weight:700; text-transform:lowercase;}
-.gate-mast p{margin:8px 0 0; font-family:var(--mono); font-size:9.5px; letter-spacing:.18em;
-  text-transform:uppercase; color:var(--g1);}
-.gate-tab{display:flex; margin-bottom:14px;}
-.msg{border:1px solid var(--line); padding:10px; font-size:12.5px; line-height:1.6; background:var(--g3);}
+.gate-art h1 .dot{color:var(--accent);}
+.gate-art .mono{color:rgba(255,255,255,.5);}
+html[data-theme="dark"] .gate-art .mono{color:rgba(0,0,0,.5);}
+.gate-star{position:absolute; right:-60px; bottom:-40px; opacity:.14;}
+.gate-form{display:flex; align-items:center; justify-content:center; padding:32px 24px;}
+.gate-form-in{width:100%; max-width:380px;}
+.msg{border:1px solid var(--line); padding:10px; font-size:12.5px; line-height:1.6; background:var(--g4);}
 .msg.bad{border-color:var(--danger); color:var(--danger); background:var(--pane);}
 .msg.ok{border-color:var(--accent); color:var(--accent); background:var(--pane);}
-.linkbtn{background:none; border:none; padding:6px 0; font-family:var(--mono); font-size:9.5px;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--g1); cursor:pointer; border-bottom:1px solid var(--g2);}
-.linkbtn:hover{color:var(--ink); border-color:var(--ink);}
 
-/* ── responsive ── */
-@media (max-width:760px){
-  .grid-gal{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+/* ───────────────────────────── RESPONSIVE ───────────────────────────── */
+@media (max-width:1100px){
+  :root{--rail:200px; --gap:16px;}
+  .c4,.c5,.c6,.c7,.c8{grid-column:span 12;}
 }
-@media (max-width:620px){
-  .app{padding-left:0;}
-  .edge{display:none;}
-  .shell{padding:14px 12px 0;}
-  .mast{padding-bottom:8px;}
-  .mast-top .coord:last-child{display:none;}
-  .tabs{position:sticky; top:0; z-index:6; background:var(--paper); margin:14px -12px 0; padding:0 12px;}
-  .tab{flex:1 1 auto; justify-content:center; align-items:center; height:var(--tap); min-height:var(--tap);
-    padding:0 6px; font-size:10px; letter-spacing:.06em; gap:5px;}
-  .tab .n{font-size:8.5px; letter-spacing:.04em;}
-  .f2{grid-template-columns:1fr;}
-  .pane-act{gap:6px;}
-  .pane-act .btn{flex:1 0 100%;}
-  .pane-act .sel,.pane-act .search{flex:1 1 45%; min-width:0;}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr;}
+  .rail{display:none;}
+  .gate{grid-template-columns:1fr;}
+  .gate-art{padding:28px 20px; min-height:36dvh;}
+
+  /* 모바일 마스트헤드 */
+  .mast{display:block; border-bottom:1px solid var(--line); padding:14px 14px 12px; background:var(--paper);}
+  .mast-top{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .mast-top .rule{flex:1; height:1px; background:var(--line);}
+  .mast h1{margin:0; font-size:clamp(28px,8.6vw,44px); line-height:.9; letter-spacing:-.045em;
+    font-weight:700; text-transform:lowercase;}
+  .mast h1 .dot{color:var(--accent);}
+
+  .topbar{position:static; padding:14px; gap:10px;}
+  .topbar-h h2{font-size:22px;}
+  .topbar-act{width:100%;}
+  .topbar-act .btn{flex:1;}
+  .sheet{padding:14px; gap:14px; padding-bottom:calc(78px + env(safe-area-inset-bottom));}
+
+  /* 바텀 내비 */
+  .bottomnav{display:grid; grid-template-columns:repeat(5,1fr); position:fixed; left:0; right:0; bottom:0;
+    z-index:40; background:var(--chip-bg); border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom);}
+  .bottomnav button{background:none; border:none; cursor:pointer; color:var(--chip-fg); opacity:.55;
+    padding:9px 2px 10px; display:flex; flex-direction:column; align-items:center; gap:4px;
+    font-family:var(--mono); font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; min-height:56px;}
+  .bottomnav button.on{opacity:1;}
+  .bottomnav button.on em{background:var(--accent);}
+  .bottomnav em{width:16px; height:2px; background:currentColor; display:block; opacity:.9;}
+  .bottomnav b{font-weight:700;}
+
   .grid-pairs{grid-template-columns:1fr;}
-  .grid-gal{grid-template-columns:1fr 1fr;}
-  .log{grid-template-columns:24px 1fr; padding:12px;}
+  .grid-gal{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+  .stats dd{font-size:24px;}
+  .f2{grid-template-columns:1fr;}
+  .panel-act{gap:6px;}
+  .panel-act .btn{flex:1 0 100%;}
+  .panel-act .sel,.panel-act .search{flex:1 1 45%;}
+  .btn,.sel,.search{min-height:var(--tap);}
+  .seg button{min-height:var(--tap);}
+  .log{grid-template-columns:26px minmax(0,1fr); padding:13px 12px; gap:10px;}
   .log-side{grid-column:2; text-align:left; display:flex; gap:12px; margin-top:5px;}
   .log-pair{margin-top:0;}
-  .scrim{padding:0; display:block; overflow:hidden; overscroll-behavior:none;}
-  .modal{position:absolute; inset:0; width:auto; max-width:none; margin:0; border:none;
-    border-top:1px solid var(--line); display:flex; flex-direction:column;}
-  .modal .bar{position:static; flex:0 0 auto; min-height:var(--tap); background:var(--pane);}
-  .modal-body{flex:1 1 auto; min-height:0; max-height:none; overflow-y:auto; overscroll-behavior:contain;
-    padding:14px 14px calc(84px + env(safe-area-inset-bottom));}
-  .modal .foot{position:fixed; left:0; right:0; bottom:0; z-index:5; margin:0;
-    background:var(--pane); border-top:1px solid var(--line);
-    padding:10px 14px calc(10px + env(safe-area-inset-bottom));}
-  .modal .foot .btn{flex:1; min-height:var(--tap); padding:0 8px; font-size:10px; letter-spacing:.06em;}
-  .foot .btn{min-height:var(--tap);}
-  .btn,.sel,.search{min-height:var(--tap);}
-  .ta{font-size:16px;}
-  .ta.lg{font-size:16px !important;}
-  .codearea{font-size:16px !important; white-space:pre-wrap; overflow-wrap:anywhere; overflow-x:hidden;
-    line-height:1.55; min-height:44vh;}
-  .fmtseg{margin-bottom:6px;}
-
-  /* HTML 백업 본문 */
-  .htmlbody{overflow-wrap:anywhere;}
-  .htmlbody table{-webkit-overflow-scrolling:touch;}
-  .htmlbody th,.htmlbody td{padding:5px 6px; font-size:.86em;}
-  .htmlbody pre{font-size:.8em; padding:10px;}
-  .htmlbody [align="right"],.htmlbody [align="center"]{text-align:inherit;}
-  .editbar .seg{flex:1 1 100%;}
-  .sizer{flex:1 1 100%; justify-content:space-between; min-height:var(--tap);}
-  .view-img img{max-height:44vh;}
-  .status{margin-top:14px; padding-bottom:calc(9px + env(safe-area-inset-bottom)); gap:8px;
-    font-size:8.5px; letter-spacing:.12em;}
-
-  /* 다가오는 기념일 — 날짜를 아랫줄로 */
-  .soon li{grid-template-columns:auto minmax(0,1fr); gap:6px 10px; padding:10px 12px;}
+  .soon li{grid-template-columns:auto minmax(0,1fr); gap:6px 10px; padding:11px 12px;}
   .soon-date{grid-column:2; grid-row:2;}
-  .soon-main{gap:1px;}
-
-  /* 태그 칩 — 한 줄로 가로 스크롤 */
-  .chips{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding:9px 12px 10px;
-    margin:0; -webkit-overflow-scrolling:touch;}
+  .chips{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;}
   .chips::-webkit-scrollbar{display:none;}
   .chip{flex:0 0 auto; min-height:32px; padding:0 10px;}
 
-  /* 카드·목록 터치 영역 */
-  .card{padding:14px 12px;}
-  .card-foot{gap:18px; padding-top:16px;}
-  .mini{padding:8px 0;}
-  .thumb{padding:8px;}
-  .thumb-t{font-size:11.5px;}
+  /* 모달 = 전체화면 시트 */
+  .scrim{padding:0; display:block; overflow:hidden; overscroll-behavior:none;}
+  .modal{position:absolute; inset:0; width:auto; max-width:none; margin:0; border:none;
+    display:flex; flex-direction:column;}
+  .modal .panel-bar{position:static; flex:0 0 auto; min-height:var(--tap); background:var(--pane);}
+  .modal-body{flex:1 1 auto; min-height:0; max-height:none; overflow-y:auto; overscroll-behavior:contain;
+    padding:14px 14px calc(84px + env(safe-area-inset-bottom));}
+  .modal .foot{position:fixed; left:0; right:0; bottom:0; z-index:5; margin:0; background:var(--pane);
+    border-top:1px solid var(--line); padding:10px 14px calc(10px + env(safe-area-inset-bottom));}
+  .modal .foot .btn{flex:1; min-height:var(--tap); padding:0 8px; font-size:10px; letter-spacing:.06em;}
 
-  /* 이미지 뷰어 */
+  .ta{font-size:16px;}
+  .ta.lg{font-size:16px !important; min-height:44vh;}
+  .codearea{font-size:16px !important; white-space:pre-wrap; overflow-wrap:anywhere; overflow-x:hidden; line-height:1.55;}
+  .mdprev{min-height:200px; max-height:none;}
+  .editbar .seg{flex:1 1 100%;}
+  .sizer{flex:1 1 100%; justify-content:space-between; min-height:var(--tap);}
+  .sizer button{width:44px;}
+  .metagrid{grid-template-columns:1fr 1fr;}
+  .view-img img{max-height:44vh;}
   .nav{width:38px; height:56px;}
   .stripcell{flex:0 0 54px; height:54px;}
-  .zoom{padding:8px;}
   .zoom img{max-height:calc(100dvh - 96px);}
-
-  /* 폼 요소 */
-  .draftbar{font-size:9px; gap:8px;}
-  .addrow{gap:6px;}
-  .addrow .in{flex:1 1 100%;}
-  .addrow .btn,.addrow .filebtn{flex:1 1 45%;}
   .prevgrid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px;}
   .prevx{width:28px; height:28px;}
   .prevmove button{width:26px; height:26px;}
-  .sizer button{width:44px;}
-  .seg button{min-height:var(--tap);}
-  .ta.lg{min-height:46vh;}
-  .mdprev{min-height:200px; max-height:none;}
-  .metagrid{grid-template-columns:1fr 1fr;}
-  .read-meta{gap:8px 14px; font-size:9px;}
-  .read-body{margin:12px 0;}
-
-  /* 설정 */
+  .addrow .in{flex:1 1 100%;}
+  .mini{padding:8px 0;}
   .sws{grid-template-columns:repeat(auto-fill,minmax(78px,1fr));}
-  .color{height:var(--tap);}
 }
-
-/* 아주 좁은 화면 */
-@media (max-width:380px){
-  .shell{padding:12px 10px 0;}
-  .tab{font-size:9px; gap:4px; padding:0 4px;}
-  .tab .n{display:none;}
-  .grid-gal{grid-template-columns:1fr;}
+@media (max-width:400px){
+  .sheet{padding:10px; gap:12px;}
+  .mast{padding:12px 10px 10px;}
+  .grid-gal{grid-template-columns:1fr 1fr;}
+  .grid-gal.dense{grid-template-columns:1fr 1fr;}
   .metagrid{grid-template-columns:1fr;}
-  .bar .meta{display:none;}
-  .status span:nth-child(2){display:none;}
+  .stats{grid-template-columns:repeat(3,1fr);}
+  .stats div{padding:11px 8px;}
+  .stats dd{font-size:20px;}
+  .bottomnav button{font-size:7.5px; letter-spacing:.06em;}
   .htmlbody th,.htmlbody td{padding:4px 5px; font-size:.8em;}
-  .htmlbody{font-size:.96em;}
 }
-
-/* 가로로 눕혔을 때 */
 @media (max-width:900px) and (orientation:landscape){
-  .view-img img{max-height:62vh;}
+  .view-img img{max-height:60vh;}
+  .ta.lg{min-height:36vh;}
   .zoom img{max-height:calc(100dvh - 60px);}
-  .ta.lg{min-height:38vh;}
-  .grid-gal{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important;}}
 </style>
@@ -671,67 +698,6 @@ function makeLocalStore(){
     async signOut(){ sessionStorage.removeItem(LS_PASS); }
   };
 }
-
-/* ═══════════════════════════════════════════════════════════
-   PRIMITIVES
-   ═══════════════════════════════════════════════════════════ */
-const Star = ({size=26, color="var(--accent)"}) => (
-  <svg className="star" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-    <path d="M16 0 C17 11 21 15 32 16 C21 17 17 21 16 32 C15 21 11 17 0 16 C11 15 15 11 16 0 Z" fill={color}/>
-  </svg>
-);
-const XIcon = () => (
-  <svg className="xmark" viewBox="0 0 10 10" aria-hidden="true">
-    <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
-  </svg>
-);
-
-function Pane({ idx, title, meta, actions, children, pad:padded=true }){
-  return (
-    <section className="pane">
-      <header className="bar">
-        <span className="idx">{idx}</span>
-        <span className="ttl">{title}</span>
-        {meta ? <span className="meta">{meta}</span> : null}
-        <span className="tools" aria-hidden="true"><i className="sq"/><i className="sq"/><XIcon/></span>
-      </header>
-      {actions ? <div className="pane-act">{actions}</div> : null}
-      <div className={padded ? "pane-body" : ""}>{children}</div>
-    </section>
-  );
-}
-const Btn = ({children, variant="line", ...rest}) =>
-  <button type="button" className={`btn ${variant==="line"?"":variant}`} {...rest}>{children}</button>;
-const Field = ({label, hint, children}) => (
-  <label className="field"><span className="lab">{label}{hint?<em>{hint}</em>:null}</span>{children}</label>
-);
-function Modal({ title, idx="—", onClose, children, wide }){
-  useEffect(()=>{
-    const h=e=>e.key==="Escape"&&onClose();
-    window.addEventListener("keydown",h);
-    const b=document.body, y=window.scrollY;
-    const prev={position:b.style.position, top:b.style.top, left:b.style.left,
-      right:b.style.right, width:b.style.width, overflow:b.style.overflow};
-    b.style.position="fixed"; b.style.top=`-${y}px`; b.style.left="0";
-    b.style.right="0"; b.style.width="100%"; b.style.overflow="hidden";
-    return ()=>{
-      window.removeEventListener("keydown",h);
-      Object.assign(b.style, prev);
-      window.scrollTo(0,y);
-    };
-  },[onClose]);
-  return (
-    <div className="scrim" onMouseDown={e=>e.target===e.currentTarget&&onClose()}>
-      <div className={`modal ${wide?"wide":""}`} role="dialog" aria-modal="true">
-        <header className="bar">
-          <span className="idx">{idx}</span><span className="ttl">{title}</span>
-          <span className="tools"><button className="close" onClick={onClose} aria-label="닫기"><XIcon/></button></span>
-        </header>
-        <div className="modal-body">{children}</div>
-      </div>
-    </div>
-  );
-}
 /* ═══════════════════════════════════════════════════════════
    MARKDOWN — 외부 라이브러리 없이 직접 변환 (입력은 먼저 이스케이프)
    ═══════════════════════════════════════════════════════════ */
@@ -856,7 +822,66 @@ const Body = ({ log, className, style }) => isHtml(log)
   ? <div className={`htmlbody ${className||""}`} style={style}
       dangerouslySetInnerHTML={{__html: sanitizeHtml(log.body)}}/>
   : <Md text={log.body} className={className} style={style}/>;
+/* ═══════════════════════════════════════════════════════════
+   PRIMITIVES
+   ═══════════════════════════════════════════════════════════ */
+const Star = ({size=26, color="var(--accent)"}) => (
+  <svg className="star" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M16 0 C17 11 21 15 32 16 C21 17 17 21 16 32 C15 21 11 17 0 16 C11 15 15 11 16 0 Z" fill={color}/>
+  </svg>
+);
+const XIcon = () => (
+  <svg className="xmark" viewBox="0 0 10 10" aria-hidden="true">
+    <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+  </svg>
+);
 
+function Panel({ idx, title, meta, actions, children, flush, className }){
+  return (
+    <section className={`panel ${flush?"flush":""} ${className||""}`}>
+      <header className="panel-bar">
+        {idx ? <span className="panel-idx">{idx}</span> : null}
+        <span className="panel-t">{title}</span>
+        {meta ? <span className="panel-meta">{meta}</span> : null}
+        <span className="panel-glyph" aria-hidden="true"><i className="sq"/><i className="sq"/><XIcon/></span>
+      </header>
+      {actions ? <div className="panel-act">{actions}</div> : null}
+      <div className="panel-body">{children}</div>
+    </section>
+  );
+}
+const Btn = ({children, variant="", ...rest}) =>
+  <button type="button" className={`btn ${variant}`} {...rest}>{children}</button>;
+const Field = ({label, hint, children}) => (
+  <label className="field"><span className="lab">{label}{hint?<em>{hint}</em>:null}</span>{children}</label>
+);
+function Modal({ title, idx="—", onClose, children, wide }){
+  useEffect(()=>{
+    const h=e=>e.key==="Escape"&&onClose();
+    window.addEventListener("keydown",h);
+    const b=document.body, y=window.scrollY;
+    const prev={position:b.style.position, top:b.style.top, left:b.style.left,
+      right:b.style.right, width:b.style.width, overflow:b.style.overflow};
+    b.style.position="fixed"; b.style.top=`-${y}px`; b.style.left="0";
+    b.style.right="0"; b.style.width="100%"; b.style.overflow="hidden";
+    return ()=>{
+      window.removeEventListener("keydown",h);
+      Object.assign(b.style, prev);
+      window.scrollTo(0,y);
+    };
+  },[onClose]);
+  return (
+    <div className="scrim" onMouseDown={e=>e.target===e.currentTarget&&onClose()}>
+      <div className={`modal ${wide?"wide":""}`} role="dialog" aria-modal="true">
+        <header className="panel-bar">
+          <span className="panel-idx">{idx}</span><span className="panel-t">{title}</span>
+          <span className="panel-glyph"><button className="close" onClick={onClose} aria-label="닫기"><XIcon/></button></span>
+        </header>
+        <div className="modal-body">{children}</div>
+      </div>
+    </div>
+  );
+}
 const Empty = ({line, action}) => (
   <div className="empty"><Star/><p>{line}</p>{action}</div>
 );
@@ -872,7 +897,7 @@ function Pic({ item, store, alt, className }){
 function Gate({ onCloud, onLocal }){
   const [cfg, setCfg] = useState(readCfg());
   const [sb, setSb] = useState(null);
-  const [mode, setMode] = useState("in");           // in | up
+  const [mode, setMode] = useState("in");
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [busy, setBusy] = useState(false);
@@ -915,74 +940,91 @@ function Gate({ onCloud, onLocal }){
 
   return (
     <div className="gate">
-      <div className="gate-inner">
-        <div className="gate-mast">
+      <div className="gate-art">
+        <div>
+          <p className="mono">Personal Archive · {fmtDate(todayISO())}</p>
           <h1>archive<span className="dot">·</span></h1>
-          <p>Character pairs / commissions / logs</p>
         </div>
+        <div>
+          <p className="serif" style={{margin:"0 0 6px", fontSize:15, opacity:.75}}>The Record of Ours</p>
+          <p className="mono">Character pairs / commissioned works / logs</p>
+        </div>
+        <span className="gate-star"><Star size={280} color="currentColor"/></span>
+      </div>
 
-        {setup ? (
-          <Pane idx="00" title="CONNECT / 저장소 연결">
-            <div className="form">
-              <p className="note" style={{marginTop:0}}>
-                기록을 계정에 저장하려면 Supabase 프로젝트 주소와 anon key가 필요합니다.
-                README의 준비 절차를 따라 값을 붙여넣어 주세요. 이 값은 이 브라우저에 기억되고,
-                <code>index.html</code> 상단 CONFIG에 넣어두면 어느 기기에서든 바로 로그인 화면이 뜹니다.
-              </p>
-              <Field label="Project URL"><input className="in" value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://xxxx.supabase.co"/></Field>
-              <Field label="Anon key"><input className="in" value={key} onChange={e=>setKey(e.target.value)} placeholder="eyJhbGciOi…"/></Field>
-              <div className="foot">
-                <Btn onClick={onLocal}>이 브라우저에만 저장</Btn>
-                <Btn variant="solid" onClick={()=>{
-                  if(!url.trim()||!key.trim()) return alert("두 값을 모두 입력해 주세요.");
-                  writeCfg(url.trim(), key.trim()); const c=readCfg(); setCfg(c); setSetup(false);
-                }}>연결하기</Btn>
+      <div className="gate-form">
+        <div className="gate-form-in">
+          {setup ? (
+            <Panel idx="00" title="CONNECT / 저장소 연결">
+              <div className="form">
+                <p className="note" style={{marginTop:0}}>
+                  기록을 계정에 저장하려면 Supabase 프로젝트 주소와 anon key가 필요합니다.
+                  README의 절차대로 값을 붙여넣어 주세요. 이 브라우저에 기억됩니다.
+                </p>
+                <Field label="Project URL"><input className="in" value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://xxxx.supabase.co"/></Field>
+                <Field label="Anon key"><input className="in" value={key} onChange={e=>setKey(e.target.value)} placeholder="eyJhbGciOi…"/></Field>
+                <div className="foot">
+                  <Btn onClick={onLocal}>이 브라우저에만 저장</Btn>
+                  <Btn variant="primary" onClick={()=>{
+                    if(!url.trim()||!key.trim()) return alert("두 값을 모두 입력해 주세요.");
+                    writeCfg(url.trim(), key.trim()); setCfg(readCfg()); setSetup(false);
+                  }}>연결하기</Btn>
+                </div>
               </div>
-            </div>
-          </Pane>
-        ) : (
-          <Pane idx="00" title={mode==="up" ? "SIGN UP / 계정 만들기" : "SIGN IN / 로그인"}>
-            <div className="form">
-              <div className="seg gate-tab">
-                <button className={mode==="in"?"on":""} onClick={()=>{setMode("in");setMsg(null);}}>로그인</button>
-                <button className={mode==="up"?"on":""} onClick={()=>{setMode("up");setMsg(null);}}>계정 만들기</button>
+            </Panel>
+          ) : (
+            <Panel idx="00" title={mode==="up" ? "SIGN UP / 계정 만들기" : "SIGN IN / 로그인"}>
+              <div className="form">
+                <div className="seg">
+                  <button className={mode==="in"?"on":""} onClick={()=>{setMode("in");setMsg(null);}}>로그인</button>
+                  <button className={mode==="up"?"on":""} onClick={()=>{setMode("up");setMsg(null);}}>계정 만들기</button>
+                </div>
+                <Field label="아이디" hint="이메일">
+                  <input className="in" type="email" autoComplete="username" value={email}
+                    onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="you@example.com"/>
+                </Field>
+                <Field label="비밀번호" hint="6자 이상">
+                  <input className="in" type="password" autoComplete={mode==="up"?"new-password":"current-password"}
+                    value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="••••••••"/>
+                </Field>
+                {msg ? <div className={`msg ${msg.bad?"bad":"ok"}`}>{msg.text}</div> : null}
+                <Btn variant="primary" onClick={submit} disabled={busy||!sb}>
+                  {busy ? "확인 중…" : mode==="up" ? "계정 만들고 시작하기" : "로그인"}
+                </Btn>
+                <p className="note small" style={{marginTop:2}}>
+                  한 번 로그인하면 이 브라우저에서는 유지되고, 다른 기기에서는 같은 아이디로 로그인하면 기록이 이어집니다.
+                </p>
+                <div style={{display:"flex", gap:16, flexWrap:"wrap"}}>
+                  <button className="linkbtn" onClick={()=>setSetup(true)}>저장소 다시 연결</button>
+                  <button className="linkbtn" onClick={onLocal}>연결 없이 둘러보기</button>
+                </div>
               </div>
-              <Field label="아이디" hint="이메일">
-                <input className="in" type="email" autoComplete="username" value={email}
-                  onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="you@example.com"/>
-              </Field>
-              <Field label="비밀번호" hint="6자 이상">
-                <input className="in" type="password" autoComplete={mode==="up"?"new-password":"current-password"}
-                  value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="••••••••"/>
-              </Field>
-              {msg ? <div className={`msg ${msg.bad?"bad":"ok"}`}>{msg.text}</div> : null}
-              <Btn variant="solid" onClick={submit} disabled={busy||!sb}>
-                {busy ? "확인 중…" : mode==="up" ? "계정 만들고 시작하기" : "로그인"}
-              </Btn>
-              <p className="note small" style={{marginTop:4}}>
-                한 번 로그인하면 이 브라우저에서는 자동으로 유지되고, 다른 기기에서는 같은 아이디로 로그인하면
-                기록이 그대로 이어집니다.
-              </p>
-              <div style={{display:"flex", gap:16, flexWrap:"wrap"}}>
-                <button className="linkbtn" onClick={()=>setSetup(true)}>저장소 다시 연결</button>
-                <button className="linkbtn" onClick={onLocal}>연결 없이 둘러보기</button>
-              </div>
-            </div>
-          </Pane>
-        )}
+            </Panel>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════
-   APP
+   APP — 레일 / 바텀 내비 셸
    ═══════════════════════════════════════════════════════════ */
+const TABS = [
+  ["home","00","OVERVIEW","한눈에 보기"],
+  ["pairs","01","D-DAY","페어 기록"],
+  ["gallery","02","GALLERY","커미션 아카이브"],
+  ["logs","03","LOGS","글 아카이브"],
+  ["settings","04","SETTINGS","설정"],
+];
+
 function App(){
   const [store, setStore] = useState(null);
   const [data, setData] = useState(null);
-  const [tab, setTab] = useState("pairs");
+  const [tab, setTab] = useState("home");
   const [status, setStatus] = useState("READY");
+  const [savedAt, setSavedAt] = useState(null);
+  const [intent, setIntent] = useState(null);       // {action:"new"} | {focus:id}
   const timer = useRef(null);
   const latest = useRef(null);
 
@@ -999,7 +1041,6 @@ function App(){
   useEffect(()=>{ document.documentElement.style.setProperty("--accent",
     (data && data.settings && data.settings.accent) || "#1F4BFF"); },[data]);
 
-  /* 테마: light | dark | auto */
   const theme = (data && data.settings && data.settings.theme) || "auto";
   useEffect(()=>{
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -1007,14 +1048,12 @@ function App(){
       const dark = theme==="dark" || (theme==="auto" && mq.matches);
       document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.setAttribute("content", dark ? "#151517" : "#E9E9E7");
+      if (meta) meta.setAttribute("content", dark ? "#101012" : "#E8E8E5");
     };
     apply();
     if (mq.addEventListener) mq.addEventListener("change", apply);
     return ()=>{ if (mq.removeEventListener) mq.removeEventListener("change", apply); };
   },[theme]);
-
-  const [savedAt, setSavedAt] = useState(null);
 
   const flush = useCallback(async ()=>{
     if (!store || !latest.current) return;
@@ -1023,8 +1062,7 @@ function App(){
       await store.save(latest.current);
       setSavedAt(new Date()); setStatus("SAVED");
       setTimeout(()=>setStatus("READY"),1400);
-    }
-    catch(e){ setStatus("SAVE FAILED"); }
+    }catch(e){ setStatus("SAVE FAILED"); }
   },[store]);
 
   const mutate = useCallback(updater=>{
@@ -1044,6 +1082,22 @@ function App(){
     return ()=>window.removeEventListener("beforeunload", h);
   },[status]);
 
+  /* 데스크톱 단축키: 1–5 탭 이동 */
+  useEffect(()=>{
+    const h = e => {
+      if (e.metaKey||e.ctrlKey||e.altKey) return;
+      const el = document.activeElement;
+      if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return;
+      if (document.querySelector(".scrim")) return;
+      const i = "12345".indexOf(e.key);
+      if (i >= 0) setTab(TABS[i][0]);
+    };
+    window.addEventListener("keydown", h);
+    return ()=>window.removeEventListener("keydown", h);
+  },[]);
+
+  const go = (t, payload=null) => { setTab(t); setIntent(payload); };
+
   if (!store || !data) return <Gate onCloud={enterCloud} onLocal={enterLocal} />;
 
   const S = data.settings;
@@ -1051,65 +1105,281 @@ function App(){
   const setGallery = v => mutate(d=>({...d, gallery: typeof v==="function"?v(d.gallery):v}));
   const setLogs = v => mutate(d=>({...d, logs: typeof v==="function"?v(d.logs):v}));
   const setSettings = v => mutate(d=>({...d, settings:{...d.settings, ...v}}));
+  const cur = TABS.find(t=>t[0]===tab) || TABS[0];
+  const counts = { home:"", pairs:pad(data.pairs.length), gallery:pad(data.gallery.length), logs:pad(data.logs.length), settings:"" };
 
   return (
     <div className="app">
-      <div className="edge" aria-hidden="true">
-        <span>PERSONAL ARCHIVE — CHARACTER PAIRS / COMMISSIONED WORKS / LOGS · NEO-SWISS WINDOW SYSTEM · BUILD 002</span>
-      </div>
-      <div className="shell">
-        <header className="mast">
-          <div className="mast-top">
-            <span className="coord">ARCHIVE · {fmtDate(todayISO())}</span>
-            <span className="rule"/>
-            <span className="coord">{store.mode==="cloud" ? "ACCOUNT SYNC ON" : "THIS BROWSER ONLY"}</span>
-          </div>
-          <h1>{(S.title||"PERSONAL ARCHIVE").toLowerCase()}<span className="dot">·</span></h1>
-          <div className="mast-sub">
-            <span className="serif">The Record of Ours</span>
-            <span className="coord who">{S.owner ? `KEEPER / ${S.owner}` : store.label}</span>
-          </div>
-        </header>
-
-        <nav className="tabs" aria-label="섹션">
-          {[["pairs","01","D-DAY"],["gallery","02","GALLERY"],["logs","03","LOGS"],["settings","04","SETTINGS"]]
-            .map(([id,n,label])=>(
-            <button key={id} className={`tab ${tab===id?"on":""}`} onClick={()=>setTab(id)}
-              aria-current={tab===id?"page":undefined}>
-              <span className="n">{n}</span>{label}
+      {/* 데스크톱 레일 */}
+      <aside className="rail">
+        <div className="rail-mark">
+          <p className="mono">ARCHIVE · {fmtDate(todayISO())}</p>
+          <h1>{(S.title||"personal archive").toLowerCase()}<span className="dot">·</span></h1>
+          <p className="mono">{S.owner ? `KEEPER / ${S.owner}` : store.label}</p>
+        </div>
+        <nav className="rail-nav" aria-label="섹션">
+          {TABS.map(([id,n,label])=>(
+            <button key={id} className={`navitem ${tab===id?"on":""}`} onClick={()=>go(id)}>
+              <i>{n}</i><span>{label}</span><b>{counts[id]}</b>
             </button>
           ))}
         </nav>
+        <div className="rail-foot">
+          <div className="rail-state">
+            <span className="mono">{status==="SAVE FAILED" ? "저장 실패" : savedAt ? `${pad(savedAt.getHours())}:${pad(savedAt.getMinutes())} 저장됨` : "대기 중"}</span>
+            <i className={`dotstate ${status==="SAVE FAILED"?"err":status!=="READY"?"live":""}`}/>
+          </div>
+          <div className="rail-theme">
+            {[["light","LIGHT"],["dark","DARK"],["auto","AUTO"]].map(([v,l])=>(
+              <button key={v} className={theme===v?"on":""} onClick={()=>setSettings({theme:v})}>{l}</button>
+            ))}
+          </div>
+        </div>
+      </aside>
 
-        <main className="main">
-          {tab==="pairs" && <PairsView pairs={data.pairs} setPairs={setPairs}/>}
-          {tab==="gallery" && <GalleryView gallery={data.gallery} setGallery={setGallery}
-            pairs={data.pairs} store={store} setStatus={setStatus}/>}
-          {tab==="logs" && <LogsView logs={data.logs} setLogs={setLogs} pairs={data.pairs}/>}
-          {tab==="settings" && <SettingsView data={data} setSettings={setSettings} store={store}
-            mutate={mutate} onSignOut={async()=>{ await flush(); await store.signOut(); location.reload(); }}/>}
+      <div className="content">
+        {/* 모바일 마스트헤드 */}
+        <header className="mast">
+          <div className="mast-top">
+            <span className="mono">ARCHIVE · {fmtDate(todayISO())}</span>
+            <span className="rule"/>
+            <span className="mono">{status==="SAVE FAILED" ? "저장 실패" : status!=="READY" ? "저장 중" : "동기화됨"}</span>
+          </div>
+          <h1>{(S.title||"personal archive").toLowerCase()}<span className="dot">·</span></h1>
+        </header>
+
+        <div className="topbar">
+          <div className="topbar-h">
+            <p className="mono">{cur[1]} / {cur[2]}</p>
+            <h2>{cur[3]}</h2>
+          </div>
+          <div className="topbar-act">
+            {tab==="pairs" && <Btn variant="primary" onClick={()=>setIntent({action:"new",at:Date.now()})}>+ 페어 추가</Btn>}
+            {tab==="gallery" && <Btn variant="primary" onClick={()=>setIntent({action:"new",at:Date.now()})}>+ 그림 등록</Btn>}
+            {tab==="logs" && <Btn variant="primary" onClick={()=>setIntent({action:"new",at:Date.now()})}>+ 새 글 쓰기</Btn>}
+          </div>
+        </div>
+
+        <main className="sheet">
+          {tab==="home" && <Dashboard data={data} store={store} go={go}/>}
+          {tab==="pairs" && <PairsView pairs={data.pairs} setPairs={setPairs} intent={intent} clear={()=>setIntent(null)}/>}
+          {tab==="gallery" && <GalleryView gallery={data.gallery} setGallery={setGallery} pairs={data.pairs}
+            store={store} setStatus={setStatus} intent={intent} clear={()=>setIntent(null)}/>}
+          {tab==="logs" && <LogsView logs={data.logs} setLogs={setLogs} pairs={data.pairs}
+            intent={intent} clear={()=>setIntent(null)}/>}
+          {tab==="settings" && <SettingsView data={data} setSettings={setSettings} store={store} mutate={mutate}
+            onSignOut={async()=>{ await flush(); await store.signOut(); location.reload(); }}/>}
         </main>
-
-        <footer className="status">
-          <span>PAIRS {pad(data.pairs.length)}</span>
-          <span>IMAGES {pad(data.gallery.length)}</span>
-          <span>LOGS {pad(data.logs.length)}</span>
-          <span className="sp"/>
-          {savedAt ? <span className="savedat">{pad(savedAt.getHours())}:{pad(savedAt.getMinutes())} 저장됨</span> : null}
-          <span className={`state ${status==="SAVE FAILED"?"err":status!=="READY"?"live":""}`}>{status}</span>
-        </footer>
       </div>
+
+      {/* 모바일 바텀 내비 */}
+      <nav className="bottomnav" aria-label="섹션">
+        {TABS.map(([id,n,label])=>(
+          <button key={id} className={tab===id?"on":""} onClick={()=>go(id)} aria-current={tab===id?"page":undefined}>
+            <em/><b>{label}</b>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
 
-/* ── 01 · D-DAY ───────────────────────────────────────────── */
-function PairsView({ pairs, setPairs }){
+/* ═══════════════════════════════════════════════════════════
+   00 · DASHBOARD
+   ═══════════════════════════════════════════════════════════ */
+function Dashboard({ data, store, go }){
+  const [q, setQ] = useState("");
+  const { pairs, gallery, logs } = data;
+
+  const lead = useMemo(()=>{
+    const withCount = pairs.map(p=>({ p, count:countFrom(p.startDate) }));
+    if (!withCount.length) return null;
+    const pin = withCount.find(x=>x.p.pinned);
+    return pin || withCount.sort((a,b)=>b.count-a.count)[0];
+  },[pairs]);
+
+  const soon = useMemo(()=>pairs.map(p=>{
+    const count = countFrom(p.startDate);
+    const { next } = nextMilestone(p.startDate, count);
+    if (!next) return null;
+    const left = next.count - count;
+    return left<=60 ? { p, label:next.label, left, on:addDaysISO(p.startDate, next.count-1) } : null;
+  }).filter(Boolean).sort((a,b)=>a.left-b.left).slice(0,5),[pairs]);
+
+  const recentGal = useMemo(()=>[...gallery]
+    .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,8),[gallery]);
+  const recentLogs = useMemo(()=>[...logs]
+    .sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:(b.createdAt||0)-(a.createdAt||0)).slice(0,5),[logs]);
+
+  const results = useMemo(()=>{
+    const n = q.trim().toLowerCase();
+    if (!n) return [];
+    const out = [];
+    logs.forEach(l=>{
+      if (((l.title||"")+" "+plainOf(l)+" "+(l.tags||[]).join(" ")).toLowerCase().includes(n))
+        out.push({ kind:"LOG", id:l.id, title:l.title||"무제", sub:plainOf(l).slice(0,60), date:l.date, to:"logs" });
+    });
+    gallery.forEach(g=>{
+      if (((g.title||"")+" "+(g.artist||"")+" "+(g.tags||[]).join(" ")+" "+(g.note||"")).toLowerCase().includes(n))
+        out.push({ kind:"ART", id:g.id, title:g.title||"UNTITLED", sub:g.artist?`@${g.artist}`:"", date:g.date, to:"gallery" });
+    });
+    pairs.forEach(p=>{
+      if (`${p.nameA} ${p.nameB} ${p.title||""}`.toLowerCase().includes(n))
+        out.push({ kind:"PAIR", id:p.id, title:`${p.nameA} × ${p.nameB}`, sub:p.title||"", date:p.startDate, to:"pairs" });
+    });
+    return out.slice(0,12);
+  },[q, logs, gallery, pairs]);
+
+  const ms = lead ? nextMilestone(lead.p.startDate, lead.count) : null;
+  const prog = ms && ms.next
+    ? Math.max(0, Math.min(1,(lead.count-ms.prevCount)/(ms.next.count-ms.prevCount))) : 0;
+
+  return (
+    <>
+      <div className="cols">
+        <div className="c5">
+          {lead ? (
+            <div className="hero">
+              <div>
+                <p className="mono" style={{margin:0}}>SINCE {fmtDate(lead.p.startDate)}</p>
+                <p className="hero-name" style={{marginTop:8}}>
+                  {lead.p.nameA}<span className="cross"> × </span>{lead.p.nameB}
+                </p>
+              </div>
+              <div className="hero-count">
+                <span className="pre">D+</span>
+                <span className="big num">{lead.count>0?lead.count:0}</span>
+                <span className="unit">일째</span>
+              </div>
+              {ms && ms.next ? (
+                <div>
+                  <div className="hero-bar"><span style={{width:`${prog*100}%`}}/></div>
+                  <div className="hero-foot">
+                    <span className="mono">NEXT · {ms.next.label}</span>
+                    <span className="mono">{ms.next.count-lead.count===0 ? "TODAY" : `D-${ms.next.count-lead.count}`}</span>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <Panel idx="00" title="START / 시작하기">
+              <p className="note" style={{marginTop:0}}>첫 페어를 등록하면 오늘이 며칠째인지 여기에 크게 표시됩니다.</p>
+              <div className="foot"><Btn variant="primary" onClick={()=>go("pairs",{action:"new",at:Date.now()})}>+ 페어 추가</Btn></div>
+            </Panel>
+          )}
+        </div>
+
+        <div className="c7">
+          <div style={{display:"flex", flexDirection:"column", gap:"var(--gap)"}}>
+            <Panel idx="SUM" title="ARCHIVE / 기록 현황" flush>
+              <dl className="stats">
+                <div><dt>PAIRS</dt><dd className="num">{pairs.length}</dd></div>
+                <div><dt>IMAGES</dt><dd className="num">{gallery.reduce((n,g)=>n+imagesOf(g).length,0)}</dd></div>
+                <div><dt>LOGS</dt><dd className="num">{logs.length}</dd></div>
+              </dl>
+              <div className="quick">
+                <Btn onClick={()=>go("logs",{action:"new",at:Date.now()})}>+ 새 글</Btn>
+                <Btn onClick={()=>go("gallery",{action:"new",at:Date.now()})}>+ 그림 등록</Btn>
+                <Btn onClick={()=>go("pairs",{action:"new",at:Date.now()})}>+ 페어 추가</Btn>
+              </div>
+            </Panel>
+
+            <Panel idx="FIND" title="SEARCH / 전체 검색" flush>
+              <div className="panel-act">
+                <input className="search" value={q} onChange={e=>setQ(e.target.value)}
+                  placeholder="글·그림·페어를 한 번에 검색"/>
+              </div>
+              {q.trim() ? (
+                results.length ? (
+                  <ul className="results">
+                    {results.map(r=>(
+                      <li key={r.kind+r.id}>
+                        <button onClick={()=>go(r.to,{focus:r.id, at:Date.now()})}>
+                          <span className="kind">{r.kind}</span>
+                          <span style={{minWidth:0}}>
+                            <span className="rt">{r.title}</span>
+                            {r.sub ? <span className="rx">{r.sub}</span> : null}
+                          </span>
+                          <span className="rd">{fmtDate(r.date)}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <div className="panel-body"><p className="note" style={{margin:0}}>일치하는 기록이 없습니다.</p></div>
+              ) : null}
+            </Panel>
+          </div>
+        </div>
+      </div>
+
+      {soon.length ? (
+        <Panel idx="NXT" title="UPCOMING / 다가오는 기념일" meta={`${pad(soon.length)}`} flush>
+          <ul className="soon">
+            {soon.map(s=>(
+              <li key={s.p.id}>
+                <span className="soon-d">{s.left===0 ? "TODAY" : `D-${s.left}`}</span>
+                <span className="soon-main"><b>{s.p.nameA} × {s.p.nameB}</b><span>{s.label}</span></span>
+                <span className="soon-date">{fmtDate(s.on)}</span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
+
+      <div className="cols">
+        <div className="c6">
+          <Panel idx="02" title="RECENT / 최근 그림" meta={`${pad(gallery.length)}`} flush>
+            {recentGal.length ? (
+              <div className="recentgrid">
+                {recentGal.map(g=>(
+                  <button key={g.id} onClick={()=>go("gallery",{focus:g.id, at:Date.now()})} title={g.title||"UNTITLED"}>
+                    <Pic item={imagesOf(g)[0]||{}} store={store} alt={g.title||"작품"}/>
+                  </button>
+                ))}
+              </div>
+            ) : <div className="panel-body"><p className="note" style={{margin:0}}>등록한 그림이 아직 없습니다.</p></div>}
+          </Panel>
+        </div>
+        <div className="c6">
+          <Panel idx="03" title="RECENT / 최근 글" meta={`${pad(logs.length)}`} flush>
+            {recentLogs.length ? (
+              <ul className="logs">
+                {recentLogs.map((l,i)=>(
+                  <li key={l.id}>
+                    <button className="log" onClick={()=>go("logs",{focus:l.id, at:Date.now()})}>
+                      <span className="log-n">{l.pinned ? <Star size={9}/> : pad(i+1)}</span>
+                      <span className="log-main">
+                        <span className="log-t">{l.title||"무제"}{isHtml(l)?<span className="log-badge">HTML</span>:null}</span>
+                        <span className="log-ex">{plainOf(l).slice(0,80)}</span>
+                      </span>
+                      <span className="log-side"><span>{fmtDate(l.date)}</span></span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : <div className="panel-body"><p className="note" style={{margin:0}}>작성한 글이 아직 없습니다.</p></div>}
+          </Panel>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   01 · D-DAY
+   ═══════════════════════════════════════════════════════════ */
+function PairsView({ pairs, setPairs, intent, clear }){
   const [editing, setEditing] = useState(null);
+  useEffect(()=>{
+    if (!intent) return;
+    if (intent.action==="new") setEditing({});
+    if (intent.focus){ const p = pairs.find(x=>x.id===intent.focus); if (p) setEditing(p); }
+    clear();
+  },[intent]);
+
   const sorted = useMemo(()=>[...pairs].sort((a,b)=>
     (!!b.pinned!==!!a.pinned) ? (b.pinned?1:-1) : (a.startDate<b.startDate?-1:1)),[pairs]);
 
-  /* 30일 안에 오는 기념일 */
   const soon = useMemo(()=>pairs.map(p=>{
     const count = countFrom(p.startDate);
     const { next } = nextMilestone(p.startDate, count);
@@ -1120,26 +1390,24 @@ function PairsView({ pairs, setPairs }){
 
   return (<>
     {soon.length ? (
-      <Pane idx="00" title="UPCOMING / 다가오는 기념일" meta={`${pad(soon.length)}`} pad={false}>
+      <Panel idx="NXT" title="UPCOMING / 다가오는 기념일" meta={`${pad(soon.length)}`} flush>
         <ul className="soon">
           {soon.map(s=>(
             <li key={s.p.id}>
               <span className="soon-d">{s.left===0 ? "TODAY" : `D-${s.left}`}</span>
-              <span className="soon-main">
-                <b>{s.p.nameA} × {s.p.nameB}</b>
-                <span>{s.label}</span>
-              </span>
+              <span className="soon-main"><b>{s.p.nameA} × {s.p.nameB}</b><span>{s.label}</span></span>
               <span className="soon-date">{fmtDate(s.on)}</span>
             </li>
           ))}
         </ul>
-      </Pane>
+      </Panel>
     ) : null}
-    <Pane idx="01" title="D-DAY / 페어 기록" meta={`${pad(pairs.length)} PAIRS`} pad={false}
-      actions={<Btn variant="solid" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}>
+
+    <Panel idx="01" title="PAIRS / 페어 기록" meta={`${pad(pairs.length)} PAIRS`} flush
+      actions={<Btn variant="primary" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}>
       {pairs.length===0 ? (
         <Empty line="아직 기록 중인 페어가 없습니다. 첫 페어와 시작일을 등록하면 오늘이 며칠째인지 세기 시작합니다."
-          action={<Btn variant="solid" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}/>
+          action={<Btn variant="primary" onClick={()=>setEditing({})}>+ 페어 추가</Btn>}/>
       ) : (
         <div className="grid grid-pairs">
           {sorted.map(p=>(
@@ -1148,7 +1416,8 @@ function PairsView({ pairs, setPairs }){
           ))}
         </div>
       )}
-    </Pane>
+    </Panel>
+
     {editing && <PairForm initial={editing} onCancel={()=>setEditing(null)} onSubmit={d=>{
       setPairs(list => d.id ? list.map(x=>x.id===d.id?d:x) : [...list, {...d, id:uid()}]);
       setEditing(null);
@@ -1172,7 +1441,7 @@ function PairCard({ p, onEdit, onDelete }){
       {p.title ? <p className="pair-sub">{p.title}</p> : null}
       <div className="count">
         <span className="pre">D+</span>
-        <span className="num">{count>0?count:0}</span>
+        <span className="big num">{count>0?count:0}</span>
         <span className="unit">일째</span>
       </div>
       {next ? (
@@ -1211,7 +1480,7 @@ function PairForm({ initial, onCancel, onSubmit }){
           onChange={e=>setF({...f,pinned:e.target.checked})}/><span>목록 맨 위에 고정</span></label>
         <div className="foot">
           <Btn onClick={onCancel}>취소</Btn>
-          <Btn variant="solid" onClick={()=>{
+          <Btn variant="primary" onClick={()=>{
             if(!f.nameA.trim()||!f.nameB.trim()) return alert("두 캐릭터 이름을 모두 입력해 주세요.");
             if(!f.startDate) return alert("시작일을 선택해 주세요.");
             onSubmit(f);
@@ -1222,21 +1491,34 @@ function PairForm({ initial, onCancel, onSubmit }){
   );
 }
 
-/* ── 02 · GALLERY ─────────────────────────────────────────── */
-/* 한 게시물이 이미지 여러 장을 가집니다.
-   item.images = [{id, src, path}]  ·  옛 형식(item.src)은 자동으로 변환 */
-const imagesOf = it => (it.images && it.images.length)
+/* ═══════════════════════════════════════════════════════════
+   02 · GALLERY — 한 게시물에 여러 장
+   ═══════════════════════════════════════════════════════════ */
+const imagesOf = it => (it && it.images && it.images.length)
   ? it.images
-  : (it.src ? [{ id: it.id, src: it.src, path: it.path || null }] : []);
+  : (it && it.src ? [{ id: it.id, src: it.src, path: it.path || null }] : []);
 
-function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
+function GalleryView({ gallery, setGallery, pairs, store, setStatus, intent, clear }){
   const [editing, setEditing] = useState(null);
   const [view, setView] = useState(null);
   const [fPair, setFPair] = useState("");
   const [fTag, setFTag] = useState("");
   const [sort, setSort] = useState("new");
+  const [dense, setDense] = useState(false);
 
-  const tags = useMemo(()=>{ const s=new Set(); gallery.forEach(g=>(g.tags||[]).forEach(t=>s.add(t))); return [...s].sort(); },[gallery]);
+  useEffect(()=>{
+    if (!intent) return;
+    if (intent.action==="new") setEditing({});
+    if (intent.focus){ const g = gallery.find(x=>x.id===intent.focus); if (g) setView(g); }
+    clear();
+  },[intent]);
+
+  const tags = useMemo(()=>{
+    const c = new Map();
+    gallery.forEach(g=>(g.tags||[]).forEach(t=>c.set(t,(c.get(t)||0)+1)));
+    return [...c.entries()].sort((a,b)=>b[1]-a[1] || (a[0]<b[0]?-1:1));
+  },[gallery]);
+
   const list = useMemo(()=>{
     const arr = gallery
       .filter(g=>fPair?g.pairId===fPair:true)
@@ -1245,9 +1527,6 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
     return arr.sort(sort==="old" ? (a,b)=>-byDate(a,b) : byDate);
   },[gallery,fPair,fTag,sort]);
 
-  const totalImages = useMemo(()=>gallery.reduce((n,g)=>n+imagesOf(g).length,0),[gallery]);
-
-  /* entries: [{kind:'keep'|'file'|'url', ...}] 순서가 그대로 이미지 순서 */
   const submit = async (form, entries, removed, onProgress) => {
     const id = form.id || uid();
     const images = [];
@@ -1279,8 +1558,7 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
 
     for (const rm of (removed||[])){ try{ await store.delImage(rm); }catch(err){} }
 
-    const item = { ...form, id, images, src:undefined, path:undefined,
-      createdAt: form.createdAt || Date.now() };
+    const item = { ...form, id, images, createdAt: form.createdAt || Date.now() };
     delete item.src; delete item.path;
     setGallery(l => l.some(g=>g.id===id) ? l.map(g=>g.id===id?item:g) : [item, ...l]);
     setEditing(null);
@@ -1293,30 +1571,35 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
   };
 
   return (<>
-    <Pane idx="02" title="GALLERY / 커미션 아카이브"
-      meta={`${pad(list.length)} POSTS · ${pad(totalImages)} IMAGES`} pad={false}
+    <Panel idx="02" title="GALLERY / 커미션 아카이브"
+      meta={`${pad(list.length)} POSTS · ${pad(gallery.reduce((n,g)=>n+imagesOf(g).length,0))} IMAGES`} flush
       actions={<>
-        <Btn variant="solid" onClick={()=>setEditing({})}>+ 그림 등록</Btn>
+        <Btn variant="primary" onClick={()=>setEditing({})}>+ 그림 등록</Btn>
         <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
           <option value="">모든 페어</option>
           {pairs.map(p=><option key={p.id} value={p.id}>{p.nameA} × {p.nameB}</option>)}
-        </select>
-        <select className="sel" value={fTag} onChange={e=>setFTag(e.target.value)}>
-          <option value="">모든 태그</option>
-          {tags.map(t=><option key={t} value={t}>#{t}</option>)}
         </select>
         <select className="sel" value={sort} onChange={e=>setSort(e.target.value)}>
           <option value="new">최신순</option>
           <option value="old">오래된순</option>
         </select>
+        <button className="sel" onClick={()=>setDense(v=>!v)}>{dense ? "크게 보기" : "작게 보기"}</button>
       </>}>
+      {tags.length ? (
+        <div className="chips">
+          <button className={`chip ${fTag===""?"on":""}`} onClick={()=>setFTag("")}>전체</button>
+          {tags.map(([t,n])=>(
+            <button key={t} className={`chip ${fTag===t?"on":""}`} onClick={()=>setFTag(fTag===t?"":t)}>#{t}<i>{n}</i></button>
+          ))}
+        </div>
+      ) : null}
       {gallery.length===0 ? (
         <Empty line="받은 커미션을 등록해 두면 작가·날짜·페어별로 다시 찾을 수 있습니다. 한 게시물에 여러 장을 함께 넣을 수 있어요."
-          action={<Btn variant="solid" onClick={()=>setEditing({})}>+ 그림 등록</Btn>}/>
+          action={<Btn variant="primary" onClick={()=>setEditing({})}>+ 그림 등록</Btn>}/>
       ) : list.length===0 ? (
         <Empty line="이 조건에 맞는 그림이 없습니다. 필터를 바꿔 보세요."/>
       ) : (
-        <div className="grid grid-gal">
+        <div className={`grid grid-gal ${dense?"dense":""}`}>
           {list.map((g,i)=>{
             const imgs = imagesOf(g);
             return (
@@ -1335,7 +1618,7 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
           })}
         </div>
       )}
-    </Pane>
+    </Panel>
 
     {editing && <GalleryForm initial={editing} pairs={pairs} store={store}
       onCancel={()=>setEditing(null)} onSubmit={submit}/>}
@@ -1347,7 +1630,6 @@ function GalleryView({ gallery, setGallery, pairs, store, setStatus }){
   </>);
 }
 
-/* ── 게시물 보기 (여러 장 넘겨보기) ── */
 function GalleryDetail({ item, pairs, store, onClose, onEdit, onDelete }){
   const imgs = imagesOf(item);
   const [n, setN] = useState(0);
@@ -1425,7 +1707,6 @@ function GalleryDetail({ item, pairs, store, onClose, onEdit, onDelete }){
   );
 }
 
-/* ── 등록 / 수정 ── */
 function GalleryForm({ initial, pairs, store, onCancel, onSubmit }){
   const [f,setF] = useState({ id:initial.id, title:initial.title||"", artist:initial.artist||"",
     date:initial.date||todayISO(), pairId:initial.pairId||"", tags:(initial.tags||[]).join(", "),
@@ -1465,12 +1746,10 @@ function GalleryForm({ initial, pairs, store, onCancel, onSubmit }){
     return next;
   });
 
-  const fileCount = entries.filter(e=>e.kind==="file").length;
-
   return (
     <Modal idx={initial.id?"02·EDIT":"02·NEW"} title={initial.id?"게시물 수정":"그림 등록"} onClose={onCancel} wide>
       <div className="form">
-        <Field label="이미지" hint="여러 장 선택 가능 · 첫 장이 대표 이미지">
+        <Field label="이미지" hint="여러 장 가능 · 첫 장이 대표">
           <div className="addrow">
             <label className="btn filebtn">파일 추가
               <input type="file" accept="image/*" multiple onChange={addFiles}/>
@@ -1526,20 +1805,15 @@ function GalleryForm({ initial, pairs, store, onCancel, onSubmit }){
 
         <div className="foot">
           <Btn onClick={onCancel} disabled={busy}>취소</Btn>
-          <Btn variant="solid" disabled={busy} onClick={async()=>{
+          <Btn variant="primary" disabled={busy} onClick={async()=>{
             if (!entries.length) return alert("이미지를 한 장 이상 넣어 주세요.");
             setBusy(true);
-            await onSubmit(
-              {...f, tags:f.tags.split(",").map(t=>t.trim()).filter(Boolean)},
-              entries, removed,
-              (done,total)=>setProg({done,total})
-            );
+            await onSubmit({...f, tags:f.tags.split(",").map(t=>t.trim()).filter(Boolean)},
+              entries, removed, (done,total)=>setProg({done,total}));
             setProg(null); setBusy(false);
           }}>
-            {busy
-              ? (prog && prog.total>1 ? `올리는 중 ${prog.done}/${prog.total}` : "저장 중…")
-              : initial.id ? "변경 저장"
-              : `아카이브에 추가${entries.length>1?` (${entries.length}장)`:""}`}
+            {busy ? (prog && prog.total>1 ? `올리는 중 ${prog.done}/${prog.total}` : "저장 중…")
+              : initial.id ? "변경 저장" : `아카이브에 추가${entries.length>1?` (${entries.length}장)`:""}`}
           </Btn>
         </div>
       </div>
@@ -1547,14 +1821,23 @@ function GalleryForm({ initial, pairs, store, onCancel, onSubmit }){
   );
 }
 
-/* ── 03 · LOGS ────────────────────────────────────────────── */
-function LogsView({ logs, setLogs, pairs }){
+/* ═══════════════════════════════════════════════════════════
+   03 · LOGS
+   ═══════════════════════════════════════════════════════════ */
+function LogsView({ logs, setLogs, pairs, intent, clear }){
   const [editing,setEditing] = useState(null);
   const [open,setOpen] = useState(null);
   const [q,setQ] = useState("");
   const [fPair,setFPair] = useState("");
   const [fTag,setFTag] = useState("");
   const [sort,setSort] = useState("new");
+
+  useEffect(()=>{
+    if (!intent) return;
+    if (intent.action==="new") setEditing({});
+    if (intent.focus){ const l = logs.find(x=>x.id===intent.focus); if (l) setOpen(l); }
+    clear();
+  },[intent]);
 
   const tags = useMemo(()=>{
     const c = new Map();
@@ -1574,16 +1857,15 @@ function LogsView({ logs, setLogs, pairs }){
     return arr.sort((a,b)=> (!!b.pinned!==!!a.pinned) ? (b.pinned?1:-1) : cmp(a,b));
   },[logs,q,fPair,fTag,sort]);
 
-  const togglePin = (id,e) => {
-    e.stopPropagation();
+  const togglePin = id => {
     setLogs(l=>l.map(x=>x.id===id?{...x, pinned:!x.pinned}:x));
     setOpen(o=>o && o.id===id ? {...o, pinned:!o.pinned} : o);
   };
 
   return (<>
-    <Pane idx="03" title="LOGS / 글 아카이브" meta={`${pad(list.length)} / ${pad(logs.length)}`} pad={false}
+    <Panel idx="03" title="LOGS / 글 아카이브" meta={`${pad(list.length)} / ${pad(logs.length)}`} flush
       actions={<>
-        <Btn variant="solid" onClick={()=>setEditing({})}>+ 새 글 쓰기</Btn>
+        <Btn variant="primary" onClick={()=>setEditing({})}>+ 새 글 쓰기</Btn>
         <input className="search" value={q} onChange={e=>setQ(e.target.value)} placeholder="제목·본문·태그 검색"/>
         <select className="sel" value={fPair} onChange={e=>setFPair(e.target.value)}>
           <option value="">모든 페어</option>
@@ -1599,15 +1881,13 @@ function LogsView({ logs, setLogs, pairs }){
         <div className="chips">
           <button className={`chip ${fTag===""?"on":""}`} onClick={()=>setFTag("")}>전체</button>
           {tags.map(([t,n])=>(
-            <button key={t} className={`chip ${fTag===t?"on":""}`} onClick={()=>setFTag(fTag===t?"":t)}>
-              #{t}<i>{n}</i>
-            </button>
+            <button key={t} className={`chip ${fTag===t?"on":""}`} onClick={()=>setFTag(fTag===t?"":t)}>#{t}<i>{n}</i></button>
           ))}
         </div>
       ) : null}
       {logs.length===0 ? (
-        <Empty line="첫 로그를 남겨 보세요. 날짜와 페어를 붙여두면 나중에 흐름을 따라 읽기 좋습니다."
-          action={<Btn variant="solid" onClick={()=>setEditing({})}>+ 새 글 쓰기</Btn>}/>
+        <Empty line="첫 로그를 남겨 보세요. 마크다운으로 쓰거나, 백업해 둔 HTML을 그대로 붙여넣을 수 있습니다."
+          action={<Btn variant="primary" onClick={()=>setEditing({})}>+ 새 글 쓰기</Btn>}/>
       ) : list.length===0 ? (
         <Empty line="검색 결과가 없습니다. 다른 낱말로 찾아보세요."/>
       ) : (
@@ -1619,7 +1899,7 @@ function LogsView({ logs, setLogs, pairs }){
                 <button className="log" onClick={()=>setOpen(l)}>
                   <span className="log-n">{l.pinned ? <Star size={9}/> : pad(list.length-i)}</span>
                   <span className="log-main">
-                    <span className="log-t">{l.title||"무제"}</span>
+                    <span className="log-t">{l.title||"무제"}{isHtml(l)?<span className="log-badge">HTML</span>:null}</span>
                     <span className="log-ex">{plainOf(l).slice(0,90)}</span>
                   </span>
                   <span className="log-side">
@@ -1632,7 +1912,7 @@ function LogsView({ logs, setLogs, pairs }){
           })}
         </ul>
       )}
-    </Pane>
+    </Panel>
 
     {editing && <LogForm initial={editing} pairs={pairs} onCancel={()=>setEditing(null)} onSubmit={d=>{
       const now=Date.now();
@@ -1651,7 +1931,7 @@ function LogsView({ logs, setLogs, pairs }){
           </div>
           <Body log={open} className="read-body" style={{fontSize:(open.fontSize||14)+"px"}}/>
           <div className="foot">
-            <Btn onClick={e=>togglePin(open.id,e)}>{open.pinned ? "고정 해제" : "맨 위 고정"}</Btn>
+            <Btn onClick={()=>togglePin(open.id)}>{open.pinned ? "고정 해제" : "맨 위 고정"}</Btn>
             <Btn onClick={()=>{ setEditing(open); setOpen(null); }}>수정</Btn>
             <Btn variant="danger" onClick={()=>{ if(confirm("이 글을 삭제할까요?")){ setLogs(l=>l.filter(x=>x.id!==open.id)); setOpen(null);} }}>삭제</Btn>
           </div>
@@ -1673,7 +1953,6 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
   const set = k => e => setF({...f,[k]:e.target.value});
   const isNew = !initial.id;
 
-  /* 새 글일 때만 임시저장 — 실수로 닫아도 이어서 쓸 수 있게 */
   useEffect(()=>{
     if (!isNew) return;
     try{
@@ -1693,6 +1972,7 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
 
   const clearDraft = ()=>{ try{ localStorage.removeItem(DRAFT_KEY); }catch(e){} };
   const chars = plainOf(f).length;
+
   return (
     <Modal idx={initial.id?"03·EDIT":"03·NEW"} title={initial.id?"글 수정":"새 글"} onClose={onCancel} wide>
       <div className="form">
@@ -1705,6 +1985,7 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
             </span>
           </div>
         ) : null}
+
         <Field label="제목"><input className="in lg" value={f.title} onChange={set("title")} placeholder="제목"/></Field>
         <div className="f2">
           <Field label="날짜"><input type="date" className="in" value={f.date} onChange={set("date")}/></Field>
@@ -1715,6 +1996,7 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
             </select>
           </Field>
         </div>
+
         <div className="field">
           <span className="lab">본문<em>{f.format==="html" ? "HTML 코드" : "마크다운"}</em></span>
           <div className="seg fmtseg">
@@ -1728,10 +2010,10 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
             </div>
             <div className="sizer">
               <span className="sizer-lab">글자 크기</span>
-              <button onClick={()=>setF({...f, fontSize:Math.max(11, (f.fontSize||14)-1)})}
+              <button onClick={()=>setF({...f, fontSize:Math.max(11,(f.fontSize||14)-1)})}
                 disabled={(f.fontSize||14)<=11} aria-label="글자 작게">−</button>
               <b>{f.fontSize||14}</b>
-              <button onClick={()=>setF({...f, fontSize:Math.min(24, (f.fontSize||14)+1)})}
+              <button onClick={()=>setF({...f, fontSize:Math.min(24,(f.fontSize||14)+1)})}
                 disabled={(f.fontSize||14)>=24} aria-label="글자 크게">+</button>
               {(f.fontSize||14)!==14 ? <button className="sizer-reset" onClick={()=>setF({...f, fontSize:14})}>기본</button> : null}
             </div>
@@ -1760,12 +2042,14 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
               : <div className="mdprev empty-prev">아직 쓴 내용이 없습니다.</div>
           )}
         </div>
+
         <Field label="태그" hint="쉼표로 구분"><input className="in" value={f.tags} onChange={set("tags")} placeholder="일상, 설정, 대화"/></Field>
         <label className="check"><input type="checkbox" checked={f.pinned}
           onChange={e=>setF({...f,pinned:e.target.checked})}/><span>목록 맨 위에 고정</span></label>
+
         <div className="foot">
           <Btn onClick={()=>{ if(isNew && (f.title||f.body) && !confirm("쓰던 내용은 임시저장되어 다음에 이어 쓸 수 있습니다. 닫을까요?")) return; onCancel(); }}>취소</Btn>
-          <Btn variant="solid" onClick={()=>{
+          <Btn variant="primary" onClick={()=>{
             if(!f.title.trim() && !f.body.trim()) return alert("제목이나 본문 중 하나는 채워 주세요.");
             clearDraft();
             onSubmit({...f, tags:f.tags.split(",").map(t=>t.trim()).filter(Boolean)});
@@ -1776,9 +2060,11 @@ function LogForm({ initial, pairs, onCancel, onSubmit }){
   );
 }
 
-/* ── 04 · SETTINGS ────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   04 · SETTINGS
+   ═══════════════════════════════════════════════════════════ */
 const PRESETS = [["BLUE","#1F4BFF"],["COBALT","#0057D9"],["RED","#E8290B"],["ORANGE","#FF6A00"],
-  ["GREEN","#0E9F6E"],["VIOLET","#6E3BFF"],["PINK","#F0399B"],["INK","#0B0B0C"]];
+  ["GREEN","#0E9F6E"],["VIOLET","#6E3BFF"],["PINK","#F0399B"],["INK","#0A0A0B"]];
 
 function SettingsView({ data, setSettings, store, mutate, onSignOut }){
   const [d,setD] = useState(data.settings);
@@ -1803,17 +2089,35 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
   };
 
   return (
-    <div className="stack">
-      <Pane idx="04" title="THEME / 화면 모드">
-        <div className="seg">
-          {[["light","라이트"],["dark","다크"],["auto","기기 설정"]].map(([v,label])=>(
-            <button key={v} className={(d.theme||"auto")===v?"on":""} onClick={()=>setSettings({theme:v})}>{label}</button>
-          ))}
+    <>
+      <div className="cols">
+        <div className="c6">
+          <Panel idx="04" title="THEME / 화면 모드">
+            <div className="seg">
+              {[["light","라이트"],["dark","다크"],["auto","기기 설정"]].map(([v,label])=>(
+                <button key={v} className={(d.theme||"auto")===v?"on":""} onClick={()=>setSettings({theme:v})}>{label}</button>
+              ))}
+            </div>
+            <p className="note">기기 설정을 고르면 휴대폰이 야간 모드로 바뀔 때 함께 어두워집니다.</p>
+          </Panel>
         </div>
-        <p className="note">기기 설정을 고르면 휴대폰이 야간 모드로 바뀔 때 함께 어두워집니다.</p>
-      </Pane>
+        <div className="c6">
+          <Panel idx="05" title="ARCHIVE / 이름">
+            <div className="f2">
+              <Field label="아카이브 제목">
+                <input className="in" value={d.title} onChange={e=>setD({...d,title:e.target.value})}
+                  onBlur={()=>setSettings({title:d.title})}/>
+              </Field>
+              <Field label="기록자" hint="선택">
+                <input className="in" value={d.owner} onChange={e=>setD({...d,owner:e.target.value})}
+                  onBlur={()=>setSettings({owner:d.owner})}/>
+              </Field>
+            </div>
+          </Panel>
+        </div>
+      </div>
 
-      <Pane idx="05" title="ACCENT / 포인트 컬러">
+      <Panel idx="06" title="ACCENT / 포인트 컬러">
         <div className="sws">
           {PRESETS.map(([name,hex])=>(
             <button key={hex} className={`sw ${(d.accent||"").toUpperCase()===hex?"on":""}`}
@@ -1831,23 +2135,9 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
               onBlur={()=>/^#[0-9a-fA-F]{6}$/.test(d.accent)&&setSettings({accent:d.accent})} placeholder="#1F4BFF"/>
           </Field>
         </div>
-        <p className="note">고른 색은 즉시 전체 화면에 적용되고 계정에 저장됩니다.</p>
-      </Pane>
+      </Panel>
 
-      <Pane idx="06" title="ARCHIVE / 이름">
-        <div className="f2">
-          <Field label="아카이브 제목">
-            <input className="in" value={d.title} onChange={e=>setD({...d,title:e.target.value})}
-              onBlur={()=>setSettings({title:d.title})}/>
-          </Field>
-          <Field label="기록자" hint="선택">
-            <input className="in" value={d.owner} onChange={e=>setD({...d,owner:e.target.value})}
-              onBlur={()=>setSettings({owner:d.owner})}/>
-          </Field>
-        </div>
-      </Pane>
-
-      <Pane idx="07" title="ACCOUNT / 계정과 저장">
+      <Panel idx="07" title="ACCOUNT / 계정과 저장">
         <p className="note" style={{marginTop:0}}>
           {store.mode==="cloud"
             ? `${store.label} 계정으로 로그인되어 있습니다. 기록과 이미지는 계정에 저장되므로 다른 기기·브라우저에서 같은 아이디로 로그인하면 그대로 이어집니다.`
@@ -1855,7 +2145,8 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
         </p>
         <dl className="metagrid mt">
           <div><dt>페어</dt><dd>{data.pairs.length}건</dd></div>
-          <div><dt>그림</dt><dd>{data.gallery.length}건</dd></div>
+          <div><dt>게시물</dt><dd>{data.gallery.length}건</dd></div>
+          <div><dt>이미지</dt><dd>{data.gallery.reduce((n,g)=>n+imagesOf(g).length,0)}장</dd></div>
           <div><dt>로그</dt><dd>{data.logs.length}건</dd></div>
         </dl>
         <div className="foot mt">
@@ -1864,12 +2155,22 @@ function SettingsView({ data, setSettings, store, mutate, onSignOut }){
           <Btn variant="danger" onClick={()=>{ if(confirm("로그아웃할까요?")) onSignOut(); }}>로그아웃</Btn>
         </div>
         <p className="note small">백업 파일에는 글·페어·작품 정보가 들어갑니다. 업로드한 이미지 원본은 저장소에 그대로 남습니다.</p>
-      </Pane>
-    </div>
+      </Panel>
+
+      <Panel idx="08" title="SHORTCUT / 단축키">
+        <p className="note" style={{marginTop:0}}>
+          <span className="kbd">1</span><span className="kbd">2</span><span className="kbd">3</span>
+          <span className="kbd">4</span><span className="kbd">5</span> 섹션 이동 ·
+          <span className="kbd" style={{marginLeft:8}}>ESC</span> 창 닫기 ·
+          <span className="kbd" style={{marginLeft:8}}>←</span><span className="kbd">→</span> 그림 넘기기
+        </p>
+      </Panel>
+    </>
   );
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
 </script>
 </body>
 </html>
